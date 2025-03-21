@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class DriverServiceImpl implements DriverService {
 
     private final DriverRepository driverRepository;
@@ -91,11 +92,6 @@ public class DriverServiceImpl implements DriverService {
 
 
     @Override
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "drivers", key = "'license:' + #driverDto.licenseNumber"),
-            @CacheEvict(value = "drivers", key = "'status:' + #driverDto.status")
-    })
     public DriverDto createDriver(DriverDto driverDto) {
         log.info("Creating new driver");
         log.debug("Creating new driver: {}, method=createDriver", driverDto);
@@ -108,11 +104,11 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    @Transactional
     @Caching(evict = {
+            @CacheEvict(value = "drivers", key = "'driver:' + #id"),
             @CacheEvict(value = "drivers", key = "'license:' + #driverDto.licenseNumber"),
-            @CacheEvict(value = "drivers", key = "'status:' + #driverDto.status"),
-            @CacheEvict(value = "drivers", key = "'driver:' + #id")
+            @CacheEvict(value = "drivers", key = "'name:' + #driverDto.firstName + ':' + #driverDto.lastName"),
+            @CacheEvict(value = "drivers", key = "'licenseType:' + #driverDto.licenseType")
     })
     public DriverDto updateDriver(Integer id, DriverDto driverDto) {
         log.info("Updating driver with ID");
@@ -130,8 +126,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    @Transactional
-    @CacheEvict(value = "drivers", allEntries = true)
+    @CacheEvict(value = "drivers", key = "'driver:' + #id")
     public void deleteDriver(Integer id) {
         log.info("Deleting driver with ID");
         log.debug("Deleting driver with ID: {}, method=deleteDriver", id);
@@ -148,10 +143,9 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    @Transactional
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
-            @CacheEvict(value = "drivers", key = "'vehicle:' + #vehicleId"),
+            @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId"),
             @CacheEvict(value = "vehicles", key = "'driver:' + #driverId")
     })
     public DriverDto assignVehicleToDriver(Integer driverId, Integer vehicleId) {
@@ -208,10 +202,9 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    @Transactional
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
-            @CacheEvict(value = "drivers", key = "'vehicle:' + #vehicleId"),
+            @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId"),
             @CacheEvict(value = "vehicles", key = "'driver:' + #driverId")
     })
     public DriverDto removeVehicleFromDriver(Integer driverId, Integer vehicleId) {

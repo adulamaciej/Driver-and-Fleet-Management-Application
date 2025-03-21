@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class VehicleServiceImpl implements VehicleService {
     private final VehicleRepository vehicleRepository;
     private final DriverRepository driverRepository;
@@ -102,11 +103,6 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "vehicles", key = "'licensePlate:' + #vehicleDto.licensePlate"),
-            @CacheEvict(value = "vehicles", key = "'type:' + #vehicleDto.type")
-    })
     public VehicleDto createVehicle(VehicleDto vehicleDto) {
         log.info("Creating vehicle");
         log.debug("Creating new vehicle: {}, method=createVehicle", vehicleDto);
@@ -126,7 +122,6 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    @Transactional
     @Caching(evict = {
             @CacheEvict(value = "vehicles", key = "'vehicle:' + #id"),
             @CacheEvict(value = "vehicles", key = "'licensePlate:' + #vehicleDto.licensePlate"),
@@ -160,10 +155,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "vehicles", key = "'vehicle:' + #id"),
-    })
+    @CacheEvict(value = "vehicles", key = "'vehicle:' + #id")
     public void deleteVehicle(Integer id) {
         log.info("Deleting vehicle with ID");
         log.debug("Deleting vehicle with ID: {}, method=deleteVehicle", id);
@@ -185,10 +177,10 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    @Transactional
     @Caching(evict = {
             @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId"),
             @CacheEvict(value = "vehicles", key = "'driver:' + #driverId"),
+            @CacheEvict(value = "drivers", key = "'driver:' + #driverId")
     })
     public VehicleDto assignVehicleToDriver(Integer vehicleId, Integer driverId) {
         log.info("Assigning vehicle ID to Driver ID");
@@ -243,10 +235,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId"),
-    })
+    @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId")
     public VehicleDto removeDriverFromVehicle(Integer vehicleId) {
         log.info("Removing driver from vehicle ID");
         log.debug("Removing driver from vehicle ID: {}, method=removeDriverFromVehicle", vehicleId);
@@ -255,16 +244,27 @@ public class VehicleServiceImpl implements VehicleService {
         if (vehicle.getDriver() == null) {
             throw new BusinessLogicException("Vehicle has no assigned driver");
         }
+        Integer driverId = vehicle.getDriver().getId();
         vehicle.setDriver(null);
         vehicle = vehicleRepository.save(vehicle);
+
+        evictDriverCache(driverId);
+
         return vehicleMapper.toDto(vehicle);
     }
 
-    @Override
-    @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "vehicles", key = "'vehicle:' + #id"),
+            @CacheEvict(value = "vehicles", key = "'driver:' + #driverId"),
+            @CacheEvict(value = "drivers", key = "'driver:' + #driverId")
     })
+
+    @SuppressWarnings("unused") // Intellij does not recognise that driverId is being used
+    protected void evictDriverCache(Integer driverId) {
+        //  This is helping method for deleting driver's cache
+    }
+
+    @Override
+    @CacheEvict(value = "vehicles", key = "'vehicle:' + #id")
     public VehicleDto updateVehicleMileage(Integer id, Double mileage) {
         log.info("Updating mileage for vehicle ID");
         log.debug("Updating mileage for vehicle ID: {} to {}, method=updateVehicleMileage", id, mileage);
@@ -279,11 +279,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "vehicles", key = "'vehicle:' + #id"),
-            @CacheEvict(value = "vehicles", key = "'status:' + #status")
-    })
+    @CacheEvict(value = "vehicles", key = "'vehicle:' + #id")
     public VehicleDto updateVehicleStatus(Integer id, Vehicle.VehicleStatus status) {
         log.info("Updating status for vehicles");
         log.debug("Updating status for vehicle ID: {} to {}, method=updateVehicleStatus", id, status);
