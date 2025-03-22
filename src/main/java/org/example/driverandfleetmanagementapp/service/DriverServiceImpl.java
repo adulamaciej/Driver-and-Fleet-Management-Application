@@ -2,6 +2,7 @@ package org.example.driverandfleetmanagementapp.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.driverandfleetmanagementapp.utilis.LicenseValidator;
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
 import org.example.driverandfleetmanagementapp.exception.*;
 import org.example.driverandfleetmanagementapp.mapper.DriverMapper;
@@ -11,7 +12,6 @@ import org.example.driverandfleetmanagementapp.repository.DriverRepository;
 import org.example.driverandfleetmanagementapp.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,9 +27,11 @@ import org.springframework.data.domain.Pageable;
 @Transactional
 public class DriverServiceImpl implements DriverService {
 
+
     private final DriverRepository driverRepository;
     private final VehicleRepository vehicleRepository;
     private final DriverMapper driverMapper;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -66,28 +68,31 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DriverDto> getDriversByStatus(Driver.DriverStatus status) {
-        log.info("Getting drivers by status");
-        log.debug("Getting drivers by status: {}, method=getDriversByStatus", status);
-        return driverMapper.toDtoList(driverRepository.findByStatus(status));
+    public Page<DriverDto> getDriversByStatus(Driver.DriverStatus status, int page, int size) {
+        log.info("Getting drivers by status with pagination");
+        log.debug("Getting drivers by status: {} - page: {}, size: {}", status, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return driverRepository.findByStatus(status, pageable).map(driverMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "drivers", key = "'name:' + #firstName + ':' + #lastName")
-    public List<DriverDto> getDriversByName(String firstName, String lastName) {
-        log.info("Getting drivers by name");
-        log.debug("Getting drivers by name: {} {},method=getDriversByName", firstName, lastName);
-        return driverMapper.toDtoList(driverRepository.findByFirstNameAndLastName(firstName, lastName));
+    @Cacheable(value = "drivers", key = "'name:' + #firstName + ':' + #lastName + ':page' + #page + ':size' + #size")
+    public Page<DriverDto> getDriversByName(String firstName, String lastName, int page, int size) {
+        log.info("Getting drivers by name with pagination");
+        log.debug("Getting drivers by name: {} {}, page: {}, size: {}", firstName, lastName, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return driverRepository.findByFirstNameAndLastName(firstName, lastName, pageable).map(driverMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "drivers", key = "'licenseType:' + #licenseType")
-    public List<DriverDto> getDriversByLicenseType(Driver.LicenseType licenseType) {
-        log.info("Getting drivers by license type");
-        log.debug("Getting drivers by license type: {}, method=getDriversByLicenseType", licenseType);
-        return driverMapper.toDtoList(driverRepository.findByLicenseType(licenseType));
+    @Cacheable(value = "drivers", key = "'licenseType:' + #licenseType + ':page' + #page + ':size' + #size")
+    public Page<DriverDto> getDriversByLicenseType(Driver.LicenseType licenseType, int page, int size) {
+        log.info("Getting drivers by license type with pagination");
+        log.debug("Getting drivers by license type: {}, page: {}, size: {}", licenseType, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return driverRepository.findByLicenseType(licenseType, pageable).map(driverMapper::toDto);
     }
 
 
@@ -134,14 +139,12 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
 
-        List<Vehicle> vehicles = vehicleRepository.findByDriverId(id);
-        if (!vehicles.isEmpty()) {
+        if (vehicleRepository.existsByDriverId(id)) {
             throw new BusinessLogicException("Cannot delete driver with assigned vehicles");
         }
 
         driverRepository.delete(driver);
     }
-
     @Override
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
@@ -156,7 +159,6 @@ public class DriverServiceImpl implements DriverService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle with ID " + vehicleId + " not found"));
 
-
         if (vehicle.getStatus() == Vehicle.VehicleStatus.OUT_OF_ORDER) {
             throw new BusinessLogicException("Cannot assign vehicle with status OUT_OF_ORDER to a driver");
         }
@@ -169,7 +171,7 @@ public class DriverServiceImpl implements DriverService {
             throw new ResourceConflictException("Vehicle is already assigned to a driver");
         }
 
-        if (!canDriverOperateVehicle(driver.getLicenseType(), vehicle.getType())) {
+        if (!LicenseValidator.canDriverOperateVehicle(driver.getLicenseType(), vehicle.getType())) {
             throw new BusinessLogicException("Driver's license type " + driver.getLicenseType() +
                     " does not allow operating vehicle of type " + vehicle.getType());
         }
@@ -180,26 +182,6 @@ public class DriverServiceImpl implements DriverService {
         return driverMapper.toDto(driver);
     }
 
-    private boolean canDriverOperateVehicle(Driver.LicenseType licenseType, Vehicle.VehicleType vehicleType) {
-        log.debug("Checking if license type {} can operate vehicle type {}", licenseType, vehicleType);
-        if (licenseType == null) {
-            throw new BusinessLogicException("Driver has an unknown or invalid license type");
-        }
-        return switch (licenseType) {
-            case B -> vehicleType == Vehicle.VehicleType.CAR;
-            case C -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.VAN ||
-                    vehicleType == Vehicle.VehicleType.TRUCK;
-            case D -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.BUS;
-            case CE -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.VAN ||
-                    vehicleType == Vehicle.VehicleType.TRUCK;
-            case DE -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.BUS;
-            default -> false;
-        };
-    }
 
     @Override
     @Caching(evict = {

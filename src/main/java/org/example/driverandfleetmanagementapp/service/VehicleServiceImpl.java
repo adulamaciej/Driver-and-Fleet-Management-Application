@@ -2,6 +2,7 @@ package org.example.driverandfleetmanagementapp.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.driverandfleetmanagementapp.utilis.LicenseValidator;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.exception.*;
 import org.example.driverandfleetmanagementapp.mapper.VehicleMapper;
@@ -28,9 +29,12 @@ import org.springframework.data.domain.Pageable;
 @Slf4j
 @Transactional
 public class VehicleServiceImpl implements VehicleService {
+
+
     private final VehicleRepository vehicleRepository;
     private final DriverRepository driverRepository;
     private final VehicleMapper vehicleMapper;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -67,28 +71,32 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VehicleDto> getVehiclesByStatus(Vehicle.VehicleStatus status) {
-        log.info("Getting vehicles by status");
-        log.debug("Getting vehicles by status: {}, method=getVehiclesByStatus", status);
-        return vehicleMapper.toDtoList(vehicleRepository.findByStatus(status));
+    public Page<VehicleDto> getVehiclesByStatus(Vehicle.VehicleStatus status, int page, int size) {
+        log.info("Getting vehicles by status with pagination");
+        log.debug("Getting vehicles by status: {} - page: {}, size: {}", status, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return vehicleRepository.findByStatus(status, pageable).map(vehicleMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "vehicles", key = "'brandAndModel:' + #brand + ':' + #model")
-    public List<VehicleDto> getVehiclesByBrandAndModel(String brand, String model) {
-        log.info("Getting vehicles by brand and model");
-        log.debug("Getting vehicles by brand: {} and model: {}, method=getVehiclesByBrandAndModel", brand, model);
-        return vehicleMapper.toDtoList(vehicleRepository.findByBrandAndModel(brand, model));
+    @Cacheable(value = "vehicles", key = "'brandAndModel:' + #brand + ':' + #model + ':page' + #page + ':size' + #size")
+    public Page<VehicleDto> getVehiclesByBrandAndModel(String brand, String model, int page, int size) {
+        log.info("Getting vehicles by brand and model with pagination");
+        log.debug("Getting vehicles by brand: {} and model: {}, page: {}, size: {}", brand, model, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return vehicleRepository.findByBrandAndModel(brand, model, pageable).map(vehicleMapper::toDto);
     }
+
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "vehicles", key = "'type:' + #type")
-    public List<VehicleDto> getVehiclesByType(Vehicle.VehicleType type) {
-        log.info("Getting vehicles by type");
-        log.debug("Getting vehicles by type: {}, method=getVehiclesByType", type);
-        return vehicleMapper.toDtoList(vehicleRepository.findByType(type));
+    @Cacheable(value = "vehicles", key = "'type:' + #type + ':page' + #page + ':size' + #size")
+    public Page<VehicleDto> getVehiclesByType(Vehicle.VehicleType type, int page, int size) {
+        log.info("Getting vehicles by type with pagination");
+        log.debug("Getting vehicles by type: {}, page: {}, size: {}", type, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return vehicleRepository.findByType(type, pageable).map(vehicleMapper::toDto);
     }
 
     @Override
@@ -202,7 +210,7 @@ public class VehicleServiceImpl implements VehicleService {
             throw new BusinessLogicException("Cannot assign vehicle to suspended driver");
         }
 
-        if (!canDriverOperateVehicle(driver.getLicenseType(), vehicle.getType())) {
+        if (!LicenseValidator.canDriverOperateVehicle(driver.getLicenseType(), vehicle.getType())) {
             throw new BusinessLogicException("Driver's license type " + driver.getLicenseType() +
                     " does not allow operating vehicle of type " + vehicle.getType());
         }
@@ -212,27 +220,7 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleMapper.toDto(vehicle);
     }
 
-    private boolean canDriverOperateVehicle(Driver.LicenseType licenseType, Vehicle.VehicleType vehicleType) {
-        log.debug("Checking if license type {} can operate vehicle type {}", licenseType, vehicleType);
 
-        if (licenseType == null) {
-            throw new BusinessLogicException("Driver has an unknown or invalid license type");
-        }
-        return switch (licenseType) {
-            case B -> vehicleType == Vehicle.VehicleType.CAR;
-            case C -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.VAN ||
-                    vehicleType == Vehicle.VehicleType.TRUCK;
-            case D -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.BUS;
-            case CE -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.VAN ||
-                    vehicleType == Vehicle.VehicleType.TRUCK;
-            case DE -> vehicleType == Vehicle.VehicleType.CAR ||
-                    vehicleType == Vehicle.VehicleType.BUS;
-            default -> false;
-        };
-    }
 
     @Override
     @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId")
@@ -258,7 +246,7 @@ public class VehicleServiceImpl implements VehicleService {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId")
     })
 
-    @SuppressWarnings("unused") // Intellij does not recognise that driverId is being used
+    @SuppressWarnings("unused") // Intellij does not recognise that driverId is being used above
     protected void evictDriverCache(Integer driverId) {
         //  This is helping method for deleting driver's cache
     }

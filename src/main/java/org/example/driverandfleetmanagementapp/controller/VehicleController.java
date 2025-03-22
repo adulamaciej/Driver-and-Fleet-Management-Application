@@ -25,7 +25,9 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Vehicle Management", description = "APIs for managing vehicles")
 public class VehicleController {
+
     private final VehicleService vehicleService;
+
 
     @GetMapping
     @Operation(summary = "Get all vehicles", description = "Retrieves paginated list of vehicles")
@@ -62,37 +64,45 @@ public class VehicleController {
     }
 
     @GetMapping("/status/{status}")
-    @Operation(summary = "Get vehicles by status", description = "Retrieves vehicles by their status")
+    @Operation(summary = "Get vehicles by status", description = "Retrieves vehicles by their status with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid vehicle status")
-    public ResponseEntity<List<VehicleDto>> getVehiclesByStatus(
-            @PathVariable Vehicle.VehicleStatus status) {
+    @ApiResponse(responseCode = "400", description = "Invalid vehicle status or pagination parameters")
+    public ResponseEntity<Page<VehicleDto>> getVehiclesByStatus(
+            @PathVariable Vehicle.VehicleStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("Get vehicles by status");
-        log.debug("REST request to get vehicles with status: {}, method=getVehiclesByStatus", status);
-        return ResponseEntity.ok(vehicleService.getVehiclesByStatus(status));
+        log.debug("REST request to get vehicles with status: {}, page: {}, size: {}", status, page, size);
+        return ResponseEntity.ok(vehicleService.getVehiclesByStatus(status, page, size));
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search vehicles by brand and model", description = "Searches for vehicles by brand and model")
+    @Operation(summary = "Search vehicles by brand and model", description = "Searches for vehicles by brand and model with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid search parameters")
-    public ResponseEntity<List<VehicleDto>> searchVehiclesByBrandAndModel(
+    @ApiResponse(responseCode = "400", description = "Invalid search parameters or pagination parameters")
+    public ResponseEntity<Page<VehicleDto>> searchVehiclesByBrandAndModel(
             @RequestParam String brand,
-            @RequestParam String model) {
+            @RequestParam String model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("Search vehicles by brand and model");
-        log.debug("REST request to search vehicles with brand: {} and model: {}, method=searchVehiclesByBrandAndModel", brand, model);
-        return ResponseEntity.ok(vehicleService.getVehiclesByBrandAndModel(brand, model));
+        log.debug("REST request to search vehicles with brand: {} and model: {}, page: {}, size: {}",
+                brand, model, page, size);
+        return ResponseEntity.ok(vehicleService.getVehiclesByBrandAndModel(brand, model, page, size));
     }
 
+
     @GetMapping("/type/{type}")
-    @Operation(summary = "Get vehicles by type", description = "Retrieves vehicles by their type")
+    @Operation(summary = "Get vehicles by type", description = "Retrieves vehicles by their type with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid vehicle type")
-    public ResponseEntity<List<VehicleDto>> getVehiclesByType(
-            @PathVariable Vehicle.VehicleType type) {
+    @ApiResponse(responseCode = "400", description = "Invalid vehicle type or pagination parameters")
+    public ResponseEntity<Page<VehicleDto>> getVehiclesByType(
+            @PathVariable Vehicle.VehicleType type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("Get vehicles by type");
-        log.debug("REST request to get vehicles with type: {}, method=getVehiclesByType", type);
-        return ResponseEntity.ok(vehicleService.getVehiclesByType(type));
+        log.debug("REST request to get vehicles with type: {}, page: {}, size: {}", type, page, size);
+        return ResponseEntity.ok(vehicleService.getVehiclesByType(type, page, size));
     }
 
     @GetMapping("/driver/{driverId}")

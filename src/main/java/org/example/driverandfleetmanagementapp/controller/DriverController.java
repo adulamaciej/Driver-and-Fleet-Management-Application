@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/drivers")
@@ -24,7 +23,9 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Driver Management", description = "APIs for managing drivers")
 public class DriverController {
+
     private final DriverService driverService;
+
 
     @GetMapping
     @Operation(summary = "Get all drivers", description = "Retrieves paginated list of drivers")
@@ -61,37 +62,45 @@ public class DriverController {
     }
 
     @GetMapping("/status/{status}")
-    @Operation(summary = "Get drivers by status", description = "Retrieves drivers by their status")
+    @Operation(summary = "Get drivers by status", description = "Retrieves paginated drivers by their status")
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid driver status")
-    public ResponseEntity<List<DriverDto>> getDriversByStatus(
-            @PathVariable Driver.DriverStatus status) {
+    @ApiResponse(responseCode = "400", description = "Invalid driver status or pagination parameters")
+    public ResponseEntity<Page<DriverDto>> getDriversByStatus(
+            @PathVariable Driver.DriverStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("Getting drivers by status");
-        log.debug("REST request to get drivers with status: {}, method=getDriversByStatus", status);
-        return ResponseEntity.ok(driverService.getDriversByStatus(status));
+        log.debug("REST request to get drivers with status: {}, page: {}, size: {}", status, page, size);
+        return ResponseEntity.ok(driverService.getDriversByStatus(status, page, size));
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search drivers by name", description = "Searches for drivers by first name and last name")
+    @Operation(summary = "Search drivers by name", description = "Searches for drivers by first name and last name with pagination")
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid search parameters")
-    public ResponseEntity<List<DriverDto>> searchDriversByName(
+    @ApiResponse(responseCode = "400", description = "Invalid search parameters or pagination parameters")
+    public ResponseEntity<Page<DriverDto>> searchDriversByName(
             @RequestParam String firstName,
-            @RequestParam String lastName) {
+            @RequestParam String lastName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("Search drivers by name");
-        log.debug("REST request to search drivers with first name: {} and last name: {}, method=searchDriversByName", firstName, lastName);
-        return ResponseEntity.ok(driverService.getDriversByName(firstName, lastName));
+        log.debug("REST request to search drivers with first name: {} and last name: {}, page: {}, size: {}",
+                firstName, lastName, page, size);
+        return ResponseEntity.ok(driverService.getDriversByName(firstName, lastName, page, size));
     }
 
     @GetMapping("/license-type/{licenseType}")
-    @Operation(summary = "Get drivers by license type", description = "Retrieves drivers by their license type")
+    @Operation(summary = "Get drivers by license type", description = "Retrieves paginated drivers by their license type")
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid license type")
-    public ResponseEntity<List<DriverDto>> getDriversByLicenseType(
-            @PathVariable Driver.LicenseType licenseType) {
+    @ApiResponse(responseCode = "400", description = "Invalid license type or pagination parameters")
+    public ResponseEntity<Page<DriverDto>> getDriversByLicenseType(
+            @PathVariable Driver.LicenseType licenseType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("Getting drivers by license type");
-        log.debug("REST request to get drivers with license type: {}, method=getDriversByLicenseType", licenseType);
-        return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType));
+        log.debug("REST request to get drivers with license type: {}, page: {}, size: {}",
+                licenseType, page, size);
+        return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType, page, size));
     }
 
     @PostMapping
