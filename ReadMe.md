@@ -75,47 +75,18 @@ The application supports multiple environment profiles:
 - **test**: Uses H2 for testing with appropriate test configurations
 - **prod**: Uses PostgreSQL with production-specific Flyway migrations
 
-### Development Setup
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/driver-and-fleet-management-app.git
-cd driver-and-fleet-management-app
-```
-
-2. Build the application
-```bash
-mvn clean package
-```
-
-3. Run with Spring Boot (dev profile)
-```bash
-mvn spring-boot:run -Dspring.profiles.active=dev
-```
-
-4. Run tests
-```bash
-mvn test
-```
-
-4. Access the application
-   - API: http://localhost:8080/api/
-   - Swagger UI: http://localhost:8080/swagger-ui.html
-
 ### Docker Deployment
-1. Build the Docker image
-```bash
+1. Build the Docker image"
+   
 docker-compose build
-```
 
-2. Start the containers
-```bash
+2. Start the containers:
+
 docker-compose up -d
-```
 
 3. Stop the containers
-```bash
+
 docker-compose down
-```
 
 ## API Endpoints
 
