@@ -10,6 +10,10 @@ public interface DriverService {
     DriverDto getDriverById(Integer id);
     DriverDto getDriverByLicenseNumber(String licenseNumber);
 
+    DriverDto getDriverByVehicleId(Integer vehicleId);
+
+
+    DriverDto updateDriverStatus(Integer id, Driver.DriverStatus status);
 
     Page<DriverDto> getAllDrivers(int page, int size);
     Page<DriverDto> getDriversByStatus(Driver.DriverStatus status, int page, int size);

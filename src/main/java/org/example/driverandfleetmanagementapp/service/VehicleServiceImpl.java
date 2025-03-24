@@ -40,10 +40,9 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional(readOnly = true)
     public Page<VehicleDto> getAllVehicles(int page, int size) {
         log.info("Getting all vehicles");
-        log.debug("getting vehicles with pagination - page: {}, size: {}, method=getAllVehicles", page, size);
+        log.debug("Getting all vehicles with pagination - page: {}, size: {}, method=getAllVehicles", page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<Vehicle> vehiclesPage = vehicleRepository.findAll(pageable);
-
         return vehiclesPage.map(vehicleMapper::toDto);
     }
 
@@ -51,7 +50,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional(readOnly = true)
     @Cacheable(value = "vehicles", key = "'vehicle:' + #id")
     public VehicleDto getVehicleById(Integer id) {
-        log.info("Getting vehicles by ID");
+        log.info("Getting vehicle by id");
         log.debug("Getting vehicle by ID: {}, method=getVehicleById", id);
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle with ID " + id + " not found"));
@@ -246,9 +245,8 @@ public class VehicleServiceImpl implements VehicleService {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId")
     })
 
-    @SuppressWarnings("unused") // Intellij does not recognise that driverId is being used above
     protected void evictDriverCache(Integer driverId) {
-        //  This is helping method for deleting driver's cache
+        // driverId used in @CacheEvict keys above to invalidate cache
     }
 
     @Override

@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -50,8 +52,8 @@ class GlobalExceptionHandlerTest {
         assertThat(errorResponse.getError()).isEqualTo(HttpStatus.NOT_FOUND.getReasonPhrase());
         assertThat(errorResponse.getMessage()).isEqualTo(errorMessage);
         assertThat(errorResponse.getPath()).isEqualTo("uri=/api/drivers/1");
-        assertThat(errorResponse.getLocalDate()).isNotNull();
-        assertThat(errorResponse.getLocalDate()).isBeforeOrEqualTo(LocalDate.now());
+        assertThat(errorResponse.getLocalDateTime()).isNotNull();
+        assertThat(errorResponse.getLocalDateTime()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 
     @Test
@@ -70,7 +72,7 @@ class GlobalExceptionHandlerTest {
         assertThat(errorResponse.getError()).isEqualTo(HttpStatus.CONFLICT.getReasonPhrase());
         assertThat(errorResponse.getMessage()).isEqualTo(errorMessage);
         assertThat(errorResponse.getPath()).isEqualTo("uri=/api/drivers/1");
-        assertThat(errorResponse.getLocalDate()).isNotNull();
+        assertThat(errorResponse.getLocalDateTime()).isNotNull();
     }
 
     @Test
@@ -89,7 +91,7 @@ class GlobalExceptionHandlerTest {
         assertThat(errorResponse.getError()).isEqualTo(HttpStatus.BAD_REQUEST.getReasonPhrase());
         assertThat(errorResponse.getMessage()).isEqualTo(errorMessage);
         assertThat(errorResponse.getPath()).isEqualTo("uri=/api/drivers/1");
-        assertThat(errorResponse.getLocalDate()).isNotNull();
+        assertThat(errorResponse.getLocalDateTime()).isNotNull();
     }
 
     @Test
@@ -107,7 +109,7 @@ class GlobalExceptionHandlerTest {
         assertThat(errorResponse.getError()).isEqualTo(HttpStatus.BAD_REQUEST.getReasonPhrase());
         assertThat(errorResponse.getMessage()).isEqualTo("Validation failed");
         assertThat(errorResponse.getPath()).isEqualTo("uri=/api/drivers/1");
-        assertThat(errorResponse.getLocalDate()).isNotNull();
+        assertThat(errorResponse.getLocalDateTime()).isNotNull();
     }
 
     @Test
@@ -125,7 +127,7 @@ class GlobalExceptionHandlerTest {
         assertThat(errorResponse.getError()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
         assertThat(errorResponse.getMessage()).isEqualTo("Unexpected error occurred");
         assertThat(errorResponse.getPath()).isEqualTo("uri=/api/drivers/1");
-        assertThat(errorResponse.getLocalDate()).isNotNull();
+        assertThat(errorResponse.getLocalDateTime()).isNotNull();
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.exception;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Slf4j
@@ -19,7 +20,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         log.error("Resource not found exception: {}", ex.getMessage());
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .localDate(LocalDate.now())
+                .localDateTime(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
                 .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .message(ex.getMessage())
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleResourceConflictException(ResourceConflictException ex, WebRequest request) {
         log.error("Resource conflict exception: {}", ex.getMessage());
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .localDate(LocalDate.now())
+                .localDateTime(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
                 .error(HttpStatus.CONFLICT.getReasonPhrase())
                 .message(ex.getMessage())
@@ -45,7 +46,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBusinessLogicException(BusinessLogicException ex, WebRequest request) {
         log.error("Business logic exception: {}", ex.getMessage());
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .localDate(LocalDate.now())
+                .localDateTime(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message(ex.getMessage())
@@ -58,7 +59,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
         log.error("Unexpected error occurred: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .localDate(LocalDate.now())
+                .localDateTime(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .message("Unexpected error occurred")
@@ -72,7 +73,7 @@ public class GlobalExceptionHandler {
         log.error("Validation exception: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .localDate(LocalDate.now())
+                .localDateTime(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message("Validation failed")

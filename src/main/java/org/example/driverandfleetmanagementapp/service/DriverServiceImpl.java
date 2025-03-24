@@ -40,7 +40,6 @@ public class DriverServiceImpl implements DriverService {
         log.debug("Getting drivers with pagination - page: {}, size: {}, method=getAllDrivers", page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<Driver> driversPage = driverRepository.findAll(pageable);
-
         return driversPage.map(driverMapper::toDto);
     }
 
@@ -50,9 +49,21 @@ public class DriverServiceImpl implements DriverService {
     public DriverDto getDriverById(Integer id) {
         log.info("Getting driver by id");
         log.debug("Getting driver by ID: {}, method=getDriverById", id);
+
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
         return driverMapper.toDto(driver);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "drivers", key = "'vehicle:' + #vehicleId")
+    public DriverDto getDriverByVehicleId(Integer vehicleId) {
+        log.info("Pobieranie kierowcy po ID pojazdu");
+        log.debug("Pobieranie kierowcy po ID pojazdu: {}, method=getDriverByVehicleId", vehicleId);
+
+        return driverRepository.findByVehiclesId(vehicleId)
+                .map(driverMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono kierowcy dla pojazdu o ID " + vehicleId));
     }
 
     @Override
@@ -96,6 +107,8 @@ public class DriverServiceImpl implements DriverService {
     }
 
 
+
+
     @Override
     public DriverDto createDriver(DriverDto driverDto) {
         log.info("Creating new driver");
@@ -126,6 +139,27 @@ public class DriverServiceImpl implements DriverService {
                     throw new ResourceConflictException("License number " + driverDto.getLicenseNumber() + " already in use");
                 });
         driverMapper.updateDriverFromDto(driverDto, driver);
+        driver = driverRepository.save(driver);
+        return driverMapper.toDto(driver);
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "drivers", key = "'driver:' + #id"),
+            @CacheEvict(value = "drivers", key = "'name:' + #result.firstName + ':' + #result.lastName"),
+            @CacheEvict(value = "drivers", key = "'license:' + #result.licenseNumber"),
+            @CacheEvict(value = "drivers", key = "'licenseType:' + #result.licenseType")
+    })
+    public DriverDto updateDriverStatus(Integer id, Driver.DriverStatus status) {
+        log.info("Updating status for driver");
+        log.debug("Updating status for driver with ID: {} to {}, method=updateDriverStatus", id, status);
+        Driver driver = driverRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
+
+        if (status == Driver.DriverStatus.SUSPENDED && !driver.getVehicles().isEmpty()) {
+            throw new BusinessLogicException("Cannot suspend driver with assigned vehicles. Please remove vehicle assignments first.");
+        }
+        driver.setStatus(status);
         driver = driverRepository.save(driver);
         return driverMapper.toDto(driver);
     }

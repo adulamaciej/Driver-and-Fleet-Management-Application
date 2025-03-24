@@ -12,7 +12,6 @@ import org.example.driverandfleetmanagementapp.service.VehicleService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +32,7 @@ public class VehicleController {
     @Operation(summary = "Get all vehicles", description = "Retrieves paginated list of vehicles")
     @ApiResponse(responseCode = "200", description = "List of vehicles retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid pagination parameters")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     public ResponseEntity<Page<VehicleDto>> getAllVehicles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -44,6 +44,7 @@ public class VehicleController {
     @GetMapping("/{id}")
     @Operation(summary = "Get vehicle by ID", description = "Retrieves a specific vehicle by ID")
     @ApiResponse(responseCode = "200", description = "Vehicle retrieved successfully")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> getVehicleById(
             @PathVariable Integer id) {
@@ -55,6 +56,7 @@ public class VehicleController {
     @GetMapping("/plate/{licensePlate}")
     @Operation(summary = "Get vehicle by license plate", description = "Retrieves a specific vehicle by license plate")
     @ApiResponse(responseCode = "200", description = "Vehicle retrieved successfully")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> getVehicleByLicensePlate(
             @PathVariable String licensePlate) {
@@ -67,6 +69,7 @@ public class VehicleController {
     @Operation(summary = "Get vehicles by status", description = "Retrieves vehicles by their status with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid vehicle status or pagination parameters")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     public ResponseEntity<Page<VehicleDto>> getVehiclesByStatus(
             @PathVariable Vehicle.VehicleStatus status,
             @RequestParam(defaultValue = "0") int page,
@@ -80,6 +83,7 @@ public class VehicleController {
     @Operation(summary = "Search vehicles by brand and model", description = "Searches for vehicles by brand and model with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid search parameters or pagination parameters")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     public ResponseEntity<Page<VehicleDto>> searchVehiclesByBrandAndModel(
             @RequestParam String brand,
             @RequestParam String model,
@@ -96,6 +100,7 @@ public class VehicleController {
     @Operation(summary = "Get vehicles by type", description = "Retrieves vehicles by their type with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid vehicle type or pagination parameters")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     public ResponseEntity<Page<VehicleDto>> getVehiclesByType(
             @PathVariable Vehicle.VehicleType type,
             @RequestParam(defaultValue = "0") int page,
@@ -108,6 +113,7 @@ public class VehicleController {
     @GetMapping("/driver/{driverId}")
     @Operation(summary = "Get vehicles by driver ID", description = "Retrieves vehicles assigned to a specific driver")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<List<VehicleDto>> getVehiclesByDriverId(
             @PathVariable Integer driverId) {
@@ -117,10 +123,10 @@ public class VehicleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a new vehicle", description = "Creates a new vehicle entry")
     @ApiResponse(responseCode = "201", description = "Vehicle created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid input data")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "409", description = "Vehicle already exists")
     public ResponseEntity<VehicleDto> createVehicle(
             @Valid @RequestBody VehicleDto vehicleDto) {
@@ -130,10 +136,10 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing vehicle", description = "Updates a vehicle entry by ID")
     @ApiResponse(responseCode = "200", description = "Vehicle updated successfully")
     @ApiResponse(responseCode = "400", description = "Invalid input data")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     @ApiResponse(responseCode = "409", description = "License plate conflict")
     public ResponseEntity<VehicleDto> updateVehicle(
@@ -145,9 +151,9 @@ public class VehicleController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a vehicle", description = "Deletes a vehicle entry by ID")
     @ApiResponse(responseCode = "204", description = "Vehicle deleted successfully")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<Void> deleteVehicle(
             @PathVariable Integer id) {
@@ -158,9 +164,9 @@ public class VehicleController {
     }
 
     @PostMapping("/{vehicleId}/driver/{driverId}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Assign vehicle to driver", description = "Assigns a vehicle to a driver")
     @ApiResponse(responseCode = "200", description = "Vehicle assigned successfully")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Driver or vehicle not found")
     @ApiResponse(responseCode = "409", description = "Vehicle already assigned")
     public ResponseEntity<VehicleDto> assignVehicleToDriver(
@@ -172,11 +178,11 @@ public class VehicleController {
     }
 
     @DeleteMapping("/{vehicleId}/driver")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Remove driver from vehicle", description = "Removes the assigned driver from a vehicle")
     @ApiResponse(responseCode = "200", description = "Driver removed successfully")
-    @ApiResponse(responseCode = "404", description = "Vehicle not found")
     @ApiResponse(responseCode = "400", description = "Vehicle has no assigned driver")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
+    @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> removeDriverFromVehicle(
             @PathVariable Integer vehicleId) {
         log.info("Remove driver from vehicle");
@@ -185,11 +191,11 @@ public class VehicleController {
     }
 
     @PatchMapping("/{id}/mileage")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update vehicle mileage", description = "Updates the mileage of a vehicle")
     @ApiResponse(responseCode = "200", description = "Mileage updated successfully")
-    @ApiResponse(responseCode = "404", description = "Vehicle not found")
     @ApiResponse(responseCode = "400", description = "Invalid mileage value")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
+    @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> updateVehicleMileage(
             @PathVariable Integer id,
             @RequestParam Double mileage) {
@@ -199,11 +205,11 @@ public class VehicleController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update vehicle status", description = "Updates the status of a vehicle")
     @ApiResponse(responseCode = "200", description = "Status updated successfully")
-    @ApiResponse(responseCode = "404", description = "Vehicle not found")
     @ApiResponse(responseCode = "400", description = "Invalid status change")
+    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
+    @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> updateVehicleStatus(
             @PathVariable Integer id,
             @RequestParam Vehicle.VehicleStatus status) {
