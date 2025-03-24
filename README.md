@@ -78,8 +78,8 @@ Other:
 ## Getting Started
 
 ### Prerequisites
-- JDK 17+
-- Maven 3.6+
+- JDK 
+- Maven 
 - Docker and Docker Compose (for containerized deployment)
 
 ### Environment Profiles
