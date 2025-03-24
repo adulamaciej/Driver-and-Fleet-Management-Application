@@ -1,6 +1,6 @@
 # Driver and Fleet Management System
 
-A robust Spring Boot application for managing drivers and vehicles in a fleet management system. This RESTful API provides comprehensive functionality for driver and vehicle management, including assignment, status tracking, and search capabilities.
+A Spring Boot application for managing drivers and vehicles in a fleet management system. This RESTful API provides comprehensive functionality for driver and vehicle management, including assignment, status tracking, and search capabilities.
 
 ## Features
 
@@ -23,18 +23,18 @@ A robust Spring Boot application for managing drivers and vehicles in a fleet ma
 - Enforce business rules (license compatibility, status restrictions)
 
 ### API Documentation
+- Open API
 - Swagger UI for API exploration and testing
-- Comprehensive API documentation with OpenAPI 3.0
 
 ## Technical Features
 
-- **Java 23**: Latest Java version for modern language features
+- **Java 23**: Latest Java version
 - **Maven**: Build and dependency management tool
 - **Spring Boot**: Framework for building Java-based enterprise applications
 - **Spring Data JPA**: Data access using JPA with Hibernate
 - **Spring Security**: Basic authentication with role-based access control
 - **Caching**: Caffeine cache for improved performance
-- **Logging**: SLF4J with Logback for comprehensive logging
+- **Logging**: SLF4J with Logback for logging
 - **Validation**: Jakarta Bean Validation for input validation
 - **Mapping**: MapStruct for efficient object mapping
 - **Documentation**: Swagger/OpenAPI for API documentation
@@ -46,8 +46,6 @@ A robust Spring Boot application for managing drivers and vehicles in a fleet ma
 
 ## Project Structure
 
-The application follows a standard Spring Boot project structure with separate packages for controllers, services, repositories, and other components. Key points about the structure:
-
 - Configuration classes for Spring Boot, Security, Cache, and OpenAPI
 - REST controllers with comprehensive API endpoints
 - Data transfer objects (DTOs) for data exchange
@@ -57,10 +55,16 @@ The application follows a standard Spring Boot project structure with separate p
 - Spring Data repositories
 - Service layer with business logic implementation
 - Utility classes for common functionality
+- Tests
 
 Resources include:
 - Flyway migration scripts in separate folders for H2 and PostgreSQL
 - Environment-specific application properties (dev, test, prod)
+
+Other:
+-Dockerfile
+-Docker-compose.yml
+
 
 ## Getting Started
 
