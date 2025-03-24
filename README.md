@@ -2,6 +2,8 @@
 
 A Spring Boot application for managing drivers and vehicles in a fleet management system. This RESTful API provides comprehensive functionality for driver and vehicle management, including assignment, status tracking, and search capabilities.
 
+
+
 ## Features
 
 ### Driver Management
@@ -22,9 +24,13 @@ A Spring Boot application for managing drivers and vehicles in a fleet managemen
 - Prevent invalid assignments (suspended drivers, out-of-order vehicles)
 - Enforce business rules (license compatibility, status restrictions)
 
+
+
 ### API Documentation
 - Open API
 - Swagger UI for API exploration and testing
+
+
 
 ## Technical Features
 
@@ -43,6 +49,8 @@ A Spring Boot application for managing drivers and vehicles in a fleet managemen
 - **Docker**: Containerization for easy deployment
 - **PostgreSQL**: Production database
 - **H2**: Development and testing database
+
+
 
 ## Project Structure
 
@@ -66,6 +74,7 @@ Other:
 -Docker-compose.yml
 
 
+
 ## Getting Started
 
 ### Prerequisites
@@ -82,15 +91,17 @@ The application supports multiple environment profiles:
 ### Docker Deployment
 1. Build the Docker image"
    
-docker-compose build
+   docker-compose build
 
 2. Start the containers:
 
-docker-compose up -d
+   docker-compose up -d
 
 3. Stop the containers
 
-docker-compose down
+   docker-compose down
+
+
 
 ## API Endpoints
 
@@ -108,6 +119,7 @@ docker-compose down
 - `POST /api/drivers/{driverId}/vehicle/{vehicleId}`: Assign vehicle to driver
 - `DELETE /api/drivers/{driverId}/vehicle/{vehicleId}`: Remove vehicle from driver
 
+
 ### Vehicle Endpoints
 - `GET /api/vehicles`: Get all vehicles
 - `GET /api/vehicles/{id}`: Get vehicle by ID
@@ -124,11 +136,15 @@ docker-compose down
 - `POST /api/vehicles/{vehicleId}/driver/{driverId}`: Assign driver to vehicle
 - `DELETE /api/vehicles/{vehicleId}/driver`: Remove driver from vehicle
 
+
+
 ## Security
 
 The API implements basic authentication with two predefined users:
 - `user`: Regular user with read-only access (password: userpassword)
 - `admin`: Administrator with full access (password: adminpassword)
+
+
 
 ## License
 
