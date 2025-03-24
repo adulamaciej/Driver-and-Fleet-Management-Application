@@ -1,18 +1,19 @@
 package org.example.driverandfleetmanagementapp.utilis;
 
 
-import org.example.driverandfleetmanagementapp.utilis.LicenseValidator;
 import org.example.driverandfleetmanagementapp.exception.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.model.Driver;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
-
+@ActiveProfiles("test")
 public class LicenseValidatorTest {
 
     @ParameterizedTest

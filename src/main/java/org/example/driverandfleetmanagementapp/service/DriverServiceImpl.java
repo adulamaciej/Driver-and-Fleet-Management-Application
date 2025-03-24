@@ -54,17 +54,6 @@ public class DriverServiceImpl implements DriverService {
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
         return driverMapper.toDto(driver);
     }
-    @Override
-    @Transactional(readOnly = true)
-    @Cacheable(value = "drivers", key = "'vehicle:' + #vehicleId")
-    public DriverDto getDriverByVehicleId(Integer vehicleId) {
-        log.info("Pobieranie kierowcy po ID pojazdu");
-        log.debug("Pobieranie kierowcy po ID pojazdu: {}, method=getDriverByVehicleId", vehicleId);
-
-        return driverRepository.findByVehiclesId(vehicleId)
-                .map(driverMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono kierowcy dla pojazdu o ID " + vehicleId));
-    }
 
     @Override
     @Transactional(readOnly = true)

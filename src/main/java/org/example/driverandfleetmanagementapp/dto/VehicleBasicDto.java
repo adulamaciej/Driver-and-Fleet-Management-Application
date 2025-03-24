@@ -1,10 +1,12 @@
 package org.example.driverandfleetmanagementapp.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
+
 
 @Data
 @NoArgsConstructor

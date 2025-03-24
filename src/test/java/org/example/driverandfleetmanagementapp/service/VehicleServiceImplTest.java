@@ -18,6 +18,8 @@ import org.example.driverandfleetmanagementapp.model.Driver;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.example.driverandfleetmanagementapp.repository.DriverRepository;
 import org.example.driverandfleetmanagementapp.repository.VehicleRepository;
+import org.springframework.test.context.ActiveProfiles;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,8 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-class VehicleServiceImplTest {
+@ActiveProfiles("test")
+public class VehicleServiceImplTest {
 
     @Mock
     private VehicleRepository vehicleRepository;
@@ -154,7 +157,6 @@ class VehicleServiceImplTest {
 
     @Test
     void getVehiclesByDriverId_ShouldReturnListOfVehicleDtos() {
-        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
         when(vehicleRepository.findByDriverId(1)).thenReturn(List.of(vehicle));
         when(vehicleMapper.toDtoList(anyList())).thenReturn(List.of(vehicleDto));
 
@@ -297,39 +299,38 @@ class VehicleServiceImplTest {
     }
 
     @Test
-    void assignVehicleToDriver_WhenValidAssignment_ShouldReturnUpdatedVehicleDto() {
+    void assignDriverToVehicle_WhenValidAssignment_ShouldReturnUpdatedVehicleDto() {
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
         when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
         when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        VehicleDto result = vehicleService.assignVehicleToDriver(1, 1);
+        VehicleDto result = vehicleService.assignDriverToVehicle(1, 1);
 
         assertThat(result).isEqualTo(vehicleDto);
         assertThat(vehicle.getDriver()).isEqualTo(driver);
     }
 
-
     @Test
-    void assignVehicleToDriver_WhenVehicleIsOutOfOrder_ShouldThrowException() {
+    void assignDriverToVehicle_WhenVehicleIsOutOfOrder_ShouldThrowException() {
         vehicle.setStatus(Vehicle.VehicleStatus.OUT_OF_ORDER);
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
 
-        assertThatThrownBy(() -> vehicleService.assignVehicleToDriver(1, 1))
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
                 .isInstanceOf(BusinessLogicException.class);
 
         verify(vehicleRepository, never()).save(any());
     }
 
     @Test
-    void assignVehicleToDriver_WhenInvalidLicenseType_ShouldThrowException() {
+    void assignDriverToVehicle_WhenInvalidLicenseType_ShouldThrowException() {
         driver.setLicenseType(Driver.LicenseType.B);
         vehicle.setType(Vehicle.VehicleType.TRUCK);
 
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
         when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
 
-        assertThatThrownBy(() -> vehicleService.assignVehicleToDriver(1, 1))
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
                 .isInstanceOf(BusinessLogicException.class)
                 .hasMessageContaining("Driver's license type");
 
@@ -337,8 +338,7 @@ class VehicleServiceImplTest {
     }
 
     @Test
-    void assignVehicleToDriver_WhenVehicleAlreadyAssigned_ShouldThrowException() {
-
+    void assignDriverToVehicle_WhenVehicleAlreadyAssigned_ShouldThrowException() {
         Driver otherDriver = Driver.builder()
                 .id(2)
                 .firstName("Jane")
@@ -348,7 +348,7 @@ class VehicleServiceImplTest {
 
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
 
-        assertThatThrownBy(() -> vehicleService.assignVehicleToDriver(1, 1))
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
                 .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("Vehicle is already assigned to a driver");
 
@@ -356,13 +356,13 @@ class VehicleServiceImplTest {
     }
 
     @Test
-    void assignVehicleToDriver_WhenDriverIsSuspended_ShouldThrowException() {
+    void assignDriverToVehicle_WhenDriverIsSuspended_ShouldThrowException() {
         driver.setStatus(Driver.DriverStatus.SUSPENDED);
 
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
         when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
 
-        assertThatThrownBy(() -> vehicleService.assignVehicleToDriver(1, 1))
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
                 .isInstanceOf(BusinessLogicException.class)
                 .hasMessageContaining("Cannot assign vehicle to suspended driver");
 
@@ -381,6 +381,7 @@ class VehicleServiceImplTest {
         assertThat(result).isEqualTo(vehicleDto);
         assertThat(vehicle.getDriver()).isNull();
     }
+
     @Test
     void removeDriverFromVehicle_WhenVehicleHasNoDriver_ShouldThrowException() {
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
@@ -415,5 +416,4 @@ class VehicleServiceImplTest {
         assertThat(result).isEqualTo(vehicleDto);
         assertThat(vehicle.getStatus()).isEqualTo(Vehicle.VehicleStatus.IN_SERVICE);
     }
-
 }

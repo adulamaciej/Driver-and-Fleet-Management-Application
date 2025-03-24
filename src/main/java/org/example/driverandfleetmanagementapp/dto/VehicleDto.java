@@ -1,10 +1,12 @@
 package org.example.driverandfleetmanagementapp.dto;
 
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import java.time.LocalDate;
+
 
 @Data
 @NoArgsConstructor

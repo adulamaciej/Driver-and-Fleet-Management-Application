@@ -51,18 +51,6 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriverById(id));
     }
 
-    @GetMapping("/vehicle/{vehicleId}")
-    @Operation(summary = "Get driver by vehicle ID", description = "Retrieves a driver assigned to specific vehicle")
-    @ApiResponse(responseCode = "200", description = "Driver retrieved successfully")
-    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
-    @ApiResponse(responseCode = "404", description = "Driver not found for the vehicle")
-    public ResponseEntity<DriverDto> getDriverByVehicleId(
-            @PathVariable Integer vehicleId) {
-        log.info("Getting driver by vehicle ID");
-        log.debug("REST request to get driver for vehicle with ID: {}, method=getDriverByVehicleId", vehicleId);
-        return ResponseEntity.ok(driverService.getDriverByVehicleId(vehicleId));
-    }
-
     @GetMapping("/license/{licenseNumber}")
     @Operation(summary = "Get driver by license number", description = "Retrieves a specific driver by license number")
     @ApiResponse(responseCode = "200", description = "Driver retrieved successfully")

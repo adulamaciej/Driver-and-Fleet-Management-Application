@@ -15,9 +15,6 @@ public interface DriverRepository extends JpaRepository<Driver, Integer> {
     //Solving N+1 problem with @EntityGraph
 
     @EntityGraph(attributePaths = {"vehicles"})
-    Optional<Driver> findByVehiclesId(Integer vehicleId);
-
-    @EntityGraph(attributePaths = {"vehicles"})
     Optional<Driver> findByLicenseNumber(String licenseNumber);
 
     @EntityGraph(attributePaths = {"vehicles"})

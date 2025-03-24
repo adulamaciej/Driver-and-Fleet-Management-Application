@@ -19,10 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,6 +33,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class DriverServiceImplTest {
 
     @Mock
@@ -152,6 +155,26 @@ class DriverServiceImplTest {
 
         assertThat(result.getContent()).hasSize(1);
         verify(driverMapper).toDto(driver);
+    }
+
+    @Test
+    void updateDriverStatus_WhenDriverExists_ShouldReturnUpdatedDriverDto() {
+        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
+        when(driverRepository.save(driver)).thenReturn(driver);
+        when(driverMapper.toDto(driver)).thenReturn(driverDto);
+
+        DriverDto result = driverService.updateDriverStatus(1, Driver.DriverStatus.SUSPENDED);
+
+        assertThat(result).isEqualTo(driverDto);
+        assertThat(driver.getStatus()).isEqualTo(Driver.DriverStatus.SUSPENDED);
+    }
+
+    @Test
+    void updateDriverStatus_WhenDriverDoesNotExist_ShouldThrowException() {
+        when(driverRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> driverService.updateDriverStatus(1, Driver.DriverStatus.SUSPENDED))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test

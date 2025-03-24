@@ -104,9 +104,14 @@ public class VehicleServiceImpl implements VehicleService {
     public List<VehicleDto> getVehiclesByDriverId(Integer driverId) {
         log.info("Getting vehicles by driver");
         log.debug("Getting vehicles by driver ID: {}, method=getVehiclesByDriverId", driverId);
-        driverRepository.findById(driverId)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + driverId + " not found"));
-        return vehicleMapper.toDtoList(vehicleRepository.findByDriverId(driverId));
+
+        List<Vehicle> vehicles = vehicleRepository.findByDriverId(driverId);
+
+        if (vehicles.isEmpty() && !driverRepository.existsById(driverId)) {
+            throw new ResourceNotFoundException("Driver with ID " + driverId + " not found");
+        }
+
+        return vehicleMapper.toDtoList(vehicles);
     }
 
     @Override
@@ -189,9 +194,10 @@ public class VehicleServiceImpl implements VehicleService {
             @CacheEvict(value = "vehicles", key = "'driver:' + #driverId"),
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId")
     })
-    public VehicleDto assignVehicleToDriver(Integer vehicleId, Integer driverId) {
-        log.info("Assigning vehicle ID to Driver ID");
-        log.debug("Assigning vehicle ID: {} to driver ID: {}, method=assignVehicleToDriver", vehicleId, driverId);
+    public VehicleDto assignDriverToVehicle(Integer vehicleId, Integer driverId) {
+        log.info("Assigning driver to vehicle");
+        log.debug("Assigning driver ID: {} to vehicle ID: {}, method=assignDriverToVehicle", driverId, vehicleId);
+
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle with ID " + vehicleId + " not found"));
         if (vehicle.getStatus() == Vehicle.VehicleStatus.OUT_OF_ORDER) {

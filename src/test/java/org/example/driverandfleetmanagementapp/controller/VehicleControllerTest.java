@@ -15,14 +15,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class VehicleControllerTest {
 
     @Mock
@@ -172,14 +175,14 @@ class VehicleControllerTest {
     }
 
     @Test
-    void assignVehicleToDriver_ShouldReturnUpdatedVehicle() {
-        when(vehicleService.assignVehicleToDriver(anyInt(), anyInt())).thenReturn(vehicleDto);
+    void assignDriverToVehicle_ShouldReturnUpdatedVehicle() {
+        when(vehicleService.assignDriverToVehicle(anyInt(), anyInt())).thenReturn(vehicleDto);
 
-        ResponseEntity<VehicleDto> response = vehicleController.assignVehicleToDriver(1, 1);
+        ResponseEntity<VehicleDto> response = vehicleController.assignDriverToVehicle(1, 1);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehicleDto);
-        verify(vehicleService).assignVehicleToDriver(1, 1);
+        verify(vehicleService).assignDriverToVehicle(1, 1);
     }
 
     @Test

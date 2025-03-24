@@ -1,10 +1,13 @@
 package org.example.driverandfleetmanagementapp.model;
 
+
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Table(name = "drivers")
@@ -48,6 +51,7 @@ public class Driver {
 
     @Builder.Default
     @OneToMany(mappedBy = "driver")
+    @BatchSize(size = 20)
     private List<Vehicle> vehicles = new ArrayList<>();
 
     public enum LicenseType {

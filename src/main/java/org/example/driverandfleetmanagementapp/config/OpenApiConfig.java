@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.config;
 
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -11,9 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
 @Configuration
 @Slf4j
 public class OpenApiConfig {
+
 
     @Bean
     public OpenAPI fleetManagementApiConfig() {

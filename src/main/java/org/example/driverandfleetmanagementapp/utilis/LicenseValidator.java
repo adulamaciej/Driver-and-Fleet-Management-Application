@@ -1,9 +1,11 @@
 package org.example.driverandfleetmanagementapp.utilis;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.example.driverandfleetmanagementapp.exception.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.model.Driver;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
+
 
 @Slf4j
 public class LicenseValidator {

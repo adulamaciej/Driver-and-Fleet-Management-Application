@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.service;
 
+
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
 import org.example.driverandfleetmanagementapp.model.Driver;
 import org.springframework.data.domain.Page;
@@ -9,8 +10,6 @@ public interface DriverService {
 
     DriverDto getDriverById(Integer id);
     DriverDto getDriverByLicenseNumber(String licenseNumber);
-
-    DriverDto getDriverByVehicleId(Integer vehicleId);
 
 
     DriverDto updateDriverStatus(Integer id, Driver.DriverStatus status);

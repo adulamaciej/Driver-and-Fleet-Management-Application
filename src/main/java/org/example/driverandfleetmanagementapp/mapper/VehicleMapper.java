@@ -1,10 +1,10 @@
 package org.example.driverandfleetmanagementapp.mapper;
 
+
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.mapstruct.*;
 import java.util.List;
-
 
 
 @Mapper(componentModel = "spring", uses = {CommonMapper.class})

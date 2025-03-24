@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.controller;
 
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 
@@ -164,17 +164,17 @@ public class VehicleController {
     }
 
     @PostMapping("/{vehicleId}/driver/{driverId}")
-    @Operation(summary = "Assign vehicle to driver", description = "Assigns a vehicle to a driver")
-    @ApiResponse(responseCode = "200", description = "Vehicle assigned successfully")
+    @Operation(summary = "Assign driver to vehicle", description = "Assigns a driver to a vehicle")
+    @ApiResponse(responseCode = "200", description = "Driver assigned successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Driver or vehicle not found")
-    @ApiResponse(responseCode = "409", description = "Vehicle already assigned")
-    public ResponseEntity<VehicleDto> assignVehicleToDriver(
+    @ApiResponse(responseCode = "409", description = "Vehicle already has an assigned driver")
+    public ResponseEntity<VehicleDto> assignDriverToVehicle(
             @PathVariable Integer vehicleId,
             @PathVariable Integer driverId) {
-        log.info("Assign vehicle to driver");
-        log.debug("REST request to assign vehicle with ID: {} to driver with ID: {}, method=assignVehicleToDriver", vehicleId, driverId);
-        return ResponseEntity.ok(vehicleService.assignVehicleToDriver(vehicleId, driverId));
+        log.info("Assign driver to vehicle");
+        log.debug("REST request to assign driver with ID: {} to vehicle with ID: {}, method=assignDriverToVehicle", driverId, vehicleId);
+        return ResponseEntity.ok(vehicleService.assignDriverToVehicle(vehicleId, driverId));
     }
 
     @DeleteMapping("/{vehicleId}/driver")

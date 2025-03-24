@@ -25,8 +25,7 @@ public interface VehicleService {
     VehicleDto updateVehicleStatus(Integer id, Vehicle.VehicleStatus status);
     void deleteVehicle(Integer id);
 
-
-    VehicleDto assignVehicleToDriver(Integer vehicleId, Integer driverId);
+    VehicleDto assignDriverToVehicle(Integer vehicleId, Integer driverId);
     VehicleDto removeDriverFromVehicle(Integer vehicleId);
 
 
