@@ -1,4 +1,4 @@
-# Driver-and-Fleet-Management-Application
+# Driver-and-Vehicle-Management-Application
 
 A Spring Boot application designed for managing drivers and vehicles in a fleet management system.
 
