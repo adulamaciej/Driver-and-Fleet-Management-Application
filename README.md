@@ -38,7 +38,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **Maven**: Build and dependency management tool
 - **Spring Boot**: Framework for building Java-based enterprise applications
 - **Spring Data JPA**: Data access using JPA with Hibernate
-- **Spring Security**: Basic authentication with role-based access control
+- **Spring Security**: Authentication with role-based access control
 - **Caching**: Caffeine cache for improved performance
 - **Logging**: SLF4J with Logback for logging
 - **Validation**: Jakarta Bean Validation for input validation
@@ -49,6 +49,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **Docker**: Containerization for easy deployment
 - **PostgreSQL**: Production database
 - **H2**: Development and testing database
+- **Lombok**: For boilerplate code reduction
 
 
 
@@ -140,7 +141,7 @@ The application supports multiple environment profiles:
 
 ## Security
 
-The API implements basic authentication with two predefined users:
+The API implements authentication with two predefined users:
 - `user`: Regular user with read-only access (password: userpassword)
 - `admin`: Administrator with full access (password: adminpassword)
 
