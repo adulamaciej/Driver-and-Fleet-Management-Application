@@ -23,6 +23,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(httpBasic -> httpBasic.realmName("Fleet Management API"))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs"
+                        ).permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // Grant GET access to users and admins
                         .requestMatchers(HttpMethod.GET, "/api/vehicles/**", "/api/drivers/**").hasAnyRole("USER", "ADMIN")

@@ -1,17 +1,18 @@
 package org.example.driverandfleetmanagementapp.config;
 
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,9 +28,10 @@ public class SecurityConfigTest {
 
 
     @Test
-    void userDetailsService_returnsValidUserDetailsService() {
-        SecurityConfig securityConfig = new SecurityConfig();
-        assert securityConfig.userDetailsService() != null;
+    void userDetailsService_shouldReturnValidUsers() {
+        UserDetailsService userDetailsService = new SecurityConfig().userDetailsService();
+        assertNotNull(userDetailsService.loadUserByUsername("admin"));
+        assertNotNull(userDetailsService.loadUserByUsername("user"));
     }
 
     @Test
@@ -73,11 +75,10 @@ public class SecurityConfigTest {
     @WithMockUser(roles = "ADMIN")
     void adminRole_canAccessModificationEndpoints() throws Exception {
         String validVehicleJson = createValidVehicleJson();
-
         mockMvc.perform(post("/api/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validVehicleJson))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().is2xxSuccessful());
     }
 
     // JSON  representing VehicleDto object with all required field
@@ -89,7 +90,7 @@ public class SecurityConfigTest {
                 + "\"productionYear\": 2020,"
                 + "\"type\": \"CAR\","
                 + "\"registrationDate\": \"2020-01-01\","
-                + "\"technicalInspectionDate\": \"2025-01-01\","
+                + "\"technicalInspectionDate\": \"2026-01-01\","
                 + "\"mileage\": 10000,"
                 + "\"status\": \"AVAILABLE\""
                 + "}";

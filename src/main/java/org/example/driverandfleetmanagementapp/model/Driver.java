@@ -19,7 +19,8 @@ public class Driver {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "driver_seq")
+    @SequenceGenerator(name = "driver_seq", sequenceName = "driver_sequence", allocationSize = 1)
     private Integer id;
 
     @Column(nullable = false)
