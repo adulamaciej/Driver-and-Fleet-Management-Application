@@ -34,7 +34,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 
 ## Technical Features
 
-- **Java 23**: Latest Java version
+- **Java 23**:  Java version
 - **Maven**: Build and dependency management tool
 - **Spring Boot**: Framework for building Java-based enterprise applications
 - **Spring Data JPA**: Data access using JPA with Hibernate
