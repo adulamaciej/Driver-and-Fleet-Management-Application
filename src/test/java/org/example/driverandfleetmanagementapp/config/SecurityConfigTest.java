@@ -1,5 +1,8 @@
 package org.example.driverandfleetmanagementapp.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.driverandfleetmanagementapp.dto.VehicleDto;
+import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -25,6 +29,9 @@ public class SecurityConfigTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
 
     @Test
@@ -56,7 +63,7 @@ public class SecurityConfigTest {
     @Test
     @WithMockUser(roles = "USER")
     void userRole_cannotAccessModificationEndpoints() throws Exception {
-        String validVehicleJson = createValidVehicleJson();
+        String validVehicleJson = objectMapper.writeValueAsString(createValidVehicle());
 
         mockMvc.perform(post("/api/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -74,25 +81,26 @@ public class SecurityConfigTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void adminRole_canAccessModificationEndpoints() throws Exception {
-        String validVehicleJson = createValidVehicleJson();
+        String validVehicleJson = objectMapper.writeValueAsString(createValidVehicle());
+
         mockMvc.perform(post("/api/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validVehicleJson))
                 .andExpect(status().is2xxSuccessful());
     }
 
-    // JSON  representing VehicleDto object with all required field
-    private String createValidVehicleJson() {
-        return "{"
-                + "\"licensePlate\": \"ABC123\","
-                + "\"brand\": \"Toyota\","
-                + "\"model\": \"Corolla\","
-                + "\"productionYear\": 2020,"
-                + "\"type\": \"CAR\","
-                + "\"registrationDate\": \"2020-01-01\","
-                + "\"technicalInspectionDate\": \"2026-01-01\","
-                + "\"mileage\": 10000,"
-                + "\"status\": \"AVAILABLE\""
-                + "}";
+    // Helping method for creating an object of a vehicle for tests
+    private VehicleDto createValidVehicle() {
+        return VehicleDto.builder()
+                .licensePlate("ABC123")
+                .brand("Toyota")
+                .model("Corolla")
+                .productionYear(2020)
+                .type(Vehicle.VehicleType.CAR)
+                .registrationDate(LocalDate.of(2020, 1, 1))
+                .technicalInspectionDate(LocalDate.of(2026, 1, 1))
+                .mileage(10000.0)
+                .status(Vehicle.VehicleStatus.AVAILABLE)
+                .build();
     }
 }

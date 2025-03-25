@@ -5,20 +5,18 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@SpringBootTest
 @ActiveProfiles("test")
-class OpenApiConfigTest {
+public class OpenApiConfigTest {
 
-    @Autowired
-    private OpenAPI openAPI;
+    private final OpenApiConfig openApiConfig = new OpenApiConfig();
+    private final OpenAPI openAPI = openApiConfig.fleetManagementApiConfig();
 
     @Test
     void openApiInfoShouldBeConfiguredCorrectly() {
@@ -46,5 +44,14 @@ class OpenApiConfigTest {
         assertThat(license).isNotNull();
         assertThat(license.getName()).isEqualTo("MIT License");
         assertThat(license.getUrl()).isEqualTo("https://opensource.org/licenses/MIT");
+    }
+
+    @Test
+    void securitySchemeShouldBeConfiguredCorrectly() {
+        SecurityScheme securityScheme = openAPI.getComponents().getSecuritySchemes().get("basicAuth");
+
+        assertThat(securityScheme).isNotNull();
+        assertThat(securityScheme.getType()).isEqualTo(SecurityScheme.Type.HTTP);
+        assertThat(securityScheme.getScheme()).isEqualTo("basic");
     }
 }

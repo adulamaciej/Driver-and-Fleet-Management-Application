@@ -31,7 +31,6 @@ public interface DriverRepository extends JpaRepository<Driver, Integer> {
     @Override
     Page<Driver> findAll(@NonNull Pageable pageable);
 
-
     @EntityGraph(attributePaths = {"vehicles"})
     @NonNull
     @Override

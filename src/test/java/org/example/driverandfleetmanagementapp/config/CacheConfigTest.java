@@ -2,28 +2,26 @@ package org.example.driverandfleetmanagementapp.config;
 
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@SpringBootTest
 @ActiveProfiles("test")
-class CacheConfigTest {
-
-    @Autowired
-    private CacheManager cacheManager;
+public class CacheConfigTest {
 
     @Test
-    void cacheManagerShouldBeCreated(){
+    void cacheManagerShouldBeCreated() {
+        CacheConfig cacheConfig = new CacheConfig();
+        CacheManager cacheManager = cacheConfig.cacheManager();
         assertThat(cacheManager).isNotNull();
     }
 
     @Test
     void cacheManagerShouldContainThisCaches() {
+        CacheConfig cacheConfig = new CacheConfig();
+        CacheManager cacheManager = cacheConfig.cacheManager();
         assertThat(cacheManager.getCacheNames())
                 .contains("vehicles")
                 .contains("drivers");
