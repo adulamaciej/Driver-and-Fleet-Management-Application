@@ -1,6 +1,5 @@
 package org.example.driverandfleetmanagementapp.config;
 
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 @ActiveProfiles("test")
 public class OpenApiConfigTest {
@@ -24,7 +22,9 @@ public class OpenApiConfigTest {
 
         assertThat(info).isNotNull();
         assertThat(info.getTitle()).isEqualTo("Fleet and Driver Management API");
-        assertThat(info.getDescription()).isEqualTo("API for managing vehicles and drivers in a fleet management system");
+        assertThat(info.getDescription()).isEqualTo("API for managing vehicles and drivers in a fleet management system. " +
+                "This API requires authentication for most endpoints. " +
+                "Use Basic Auth with provided user credentials.");
         assertThat(info.getVersion()).isEqualTo("1.0.0");
     }
 
@@ -53,5 +53,13 @@ public class OpenApiConfigTest {
         assertThat(securityScheme).isNotNull();
         assertThat(securityScheme.getType()).isEqualTo(SecurityScheme.Type.HTTP);
         assertThat(securityScheme.getScheme()).isEqualTo("basic");
+        assertThat(securityScheme.getDescription()).isEqualTo("Use your username and password to access secured endpoints.");
+    }
+
+    @Test
+    void securityRequirementShouldBeConfiguredCorrectly() {
+        assertThat(openAPI.getSecurity()).isNotNull();
+        assertThat(openAPI.getSecurity()).hasSize(1);
+        assertThat(openAPI.getSecurity().getFirst().get("basicAuth")).isNotNull();
     }
 }

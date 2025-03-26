@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -33,10 +34,12 @@ public class SecurityConfigTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void userDetailsService_shouldReturnValidUsers() {
-        UserDetailsService userDetailsService = new SecurityConfig().userDetailsService();
+        UserDetailsService userDetailsService = new SecurityConfig().userDetailsService(passwordEncoder);
         assertNotNull(userDetailsService.loadUserByUsername("admin"));
         assertNotNull(userDetailsService.loadUserByUsername("user"));
     }
