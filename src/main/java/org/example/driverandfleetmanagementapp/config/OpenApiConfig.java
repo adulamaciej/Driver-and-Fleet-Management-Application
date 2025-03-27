@@ -39,6 +39,6 @@ public class OpenApiConfig {
                                     .type(SecurityScheme.Type.HTTP)
                                     .scheme("basic")
                                     .description("Use your username and password to access secured endpoints.")))
-                    .addSecurityItem(new SecurityRequirement().addList("basicAuth")); // Dodane: globalne wymaganie autoryzacji
+                    .addSecurityItem(new SecurityRequirement().addList("basicAuth")); // Global authorization requirements
         }
     }
