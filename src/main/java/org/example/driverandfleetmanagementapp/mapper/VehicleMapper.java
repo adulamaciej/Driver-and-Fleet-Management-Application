@@ -17,6 +17,7 @@ public interface VehicleMapper {
 
     List<VehicleDto> toDtoList(List<Vehicle> vehicles);
 
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "driver", ignore = true)
     void updateVehicleFromDto(VehicleDto vehicleDTO, @MappingTarget Vehicle vehicle);

@@ -15,6 +15,7 @@ public interface DriverMapper {
     @Mapping(target = "vehicles", ignore = true)
     Driver toEntity(DriverDto driverDto);
 
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "vehicles", ignore = true)
     void updateDriverFromDto(DriverDto driverDTO, @MappingTarget Driver driver);
