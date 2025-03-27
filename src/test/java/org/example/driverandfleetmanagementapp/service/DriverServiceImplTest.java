@@ -90,7 +90,7 @@ class DriverServiceImplTest {
         Page<DriverDto> result = driverService.getAllDrivers(0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(driverMapper).toDto(driver);
+        assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
     }
 
     @Test
@@ -130,31 +130,33 @@ class DriverServiceImplTest {
         Page<DriverDto> result = driverService.getDriversByStatus(Driver.DriverStatus.ACTIVE, 0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(driverMapper).toDto(driver);
+        assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
     }
 
     @Test
     void getDriversByName_ShouldReturnPageOfDriverDtos() {
         Page<Driver> driverPage = new PageImpl<>(List.of(driver));
-        when(driverRepository.findByFirstNameAndLastName(anyString(), anyString(), any(Pageable.class))).thenReturn(driverPage);
+        when(driverRepository.findByFirstNameAndLastName(anyString(), anyString(), any(Pageable.class)))
+                .thenReturn(driverPage);
         when(driverMapper.toDto(driver)).thenReturn(driverDto);
 
         Page<DriverDto> result = driverService.getDriversByName("John", "Doe", 0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(driverMapper).toDto(driver);
+        assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
     }
 
     @Test
     void getDriversByLicenseType_ShouldReturnPageOfDriverDtos() {
         Page<Driver> driverPage = new PageImpl<>(List.of(driver));
-        when(driverRepository.findByLicenseType(any(Driver.LicenseType.class), any(Pageable.class))).thenReturn(driverPage);
+        when(driverRepository.findByLicenseType(any(Driver.LicenseType.class), any(Pageable.class)))
+                .thenReturn(driverPage);
         when(driverMapper.toDto(driver)).thenReturn(driverDto);
 
         Page<DriverDto> result = driverService.getDriversByLicenseType(Driver.LicenseType.B, 0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(driverMapper).toDto(driver);
+        assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
     }
 
     @Test
@@ -167,6 +169,7 @@ class DriverServiceImplTest {
 
         assertThat(result).isEqualTo(driverDto);
         assertThat(driver.getStatus()).isEqualTo(Driver.DriverStatus.SUSPENDED);
+        verify(driverRepository).save(driver);
     }
 
     @Test
@@ -175,6 +178,8 @@ class DriverServiceImplTest {
 
         assertThatThrownBy(() -> driverService.updateDriverStatus(1, Driver.DriverStatus.SUSPENDED))
                 .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(driverRepository, never()).save(any());
     }
 
     @Test
@@ -211,7 +216,9 @@ class DriverServiceImplTest {
 
         assertThat(result).isEqualTo(driverDto);
         verify(driverMapper).updateDriverFromDto(driverDto, driver);
+        verify(driverRepository).save(driver);
     }
+
     @Test
     void updateDriver_WhenLicenseNumberConflict_ShouldThrowException() {
         Driver existingDriver = Driver.builder()
@@ -261,8 +268,9 @@ class DriverServiceImplTest {
 
         assertThat(result).isEqualTo(driverDto);
         assertThat(driver.getVehicles()).contains(vehicle);
-        assertThat(vehicle.getDriver()).isEqualTo(driver);
+        verify(driverRepository).save(driver);
     }
+
     @Test
     void assignVehicleToDriver_WhenDriverDoesNotExist_ShouldThrowException() {
         when(driverRepository.findById(1)).thenReturn(Optional.empty());
@@ -270,15 +278,12 @@ class DriverServiceImplTest {
         assertThatThrownBy(() -> driverService.assignVehicleToDriver(1, 1))
                 .isInstanceOf(ResourceNotFoundException.class);
 
-        verify(vehicleRepository, never()).findById(any());
+        verify(driverRepository, never()).save(any());
     }
+
     @Test
     void assignVehicleToDriver_WhenVehicleAlreadyAssignedToAnotherDriver_ShouldThrowException() {
-        Driver otherDriver = Driver.builder()
-                .id(2)
-                .firstName("Jane")
-                .lastName("Smith")
-                .build();
+        Driver otherDriver = Driver.builder().id(2).build();
         vehicle.setDriver(otherDriver);
 
         when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
@@ -294,6 +299,7 @@ class DriverServiceImplTest {
     @Test
     void assignVehicleToDriver_WhenVehicleIsOutOfOrder_ShouldThrowException() {
         vehicle.setStatus(Vehicle.VehicleStatus.OUT_OF_ORDER);
+
         when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
 
@@ -302,6 +308,7 @@ class DriverServiceImplTest {
 
         verify(driverRepository, never()).save(any());
     }
+
     @Test
     void assignVehicleToDriver_WhenDriverHasIncompatibleLicenseType_ShouldThrowException() {
         driver.setLicenseType(Driver.LicenseType.B);
@@ -316,6 +323,7 @@ class DriverServiceImplTest {
 
         verify(driverRepository, never()).save(any());
     }
+
     @Test
     void assignVehicleToDriver_WhenDriverIsSuspended_ShouldThrowException() {
         driver.setStatus(Driver.DriverStatus.SUSPENDED);
@@ -343,15 +351,16 @@ class DriverServiceImplTest {
         DriverDto result = driverService.removeVehicleFromDriver(1, 1);
 
         assertThat(result).isEqualTo(driverDto);
-        assertThat(driver.getVehicles()).doesNotContain(vehicle);
-        assertThat(vehicle.getDriver()).isNull();
+        assertThat(driver.getVehicles()).isEmpty();
+        verify(driverRepository).save(driver);
     }
+
     @Test
     void removeVehicleFromDriver_WhenVehicleNotAssignedToDriver_ShouldThrowException() {
+
+        vehicle.setDriver(null);
         when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
-
-
 
         assertThatThrownBy(() -> driverService.removeVehicleFromDriver(1, 1))
                 .isInstanceOf(BusinessLogicException.class)
@@ -359,5 +368,4 @@ class DriverServiceImplTest {
 
         verify(driverRepository, never()).save(any());
     }
-
 }

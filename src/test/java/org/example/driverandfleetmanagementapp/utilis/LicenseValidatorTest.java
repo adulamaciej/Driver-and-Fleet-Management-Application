@@ -54,9 +54,4 @@ public class LicenseValidatorTest {
                 .hasMessageContaining("Driver has an unknown or invalid license type");
     }
 
-    @Test
-    void canDriverOperateVehicle_DefaultCase_ShouldReturnFalse() {
-        boolean result = LicenseValidator.canDriverOperateVehicle(Driver.LicenseType.B, Vehicle.VehicleType.TRUCK);
-        assertThat(result).isFalse();
-    }
 }

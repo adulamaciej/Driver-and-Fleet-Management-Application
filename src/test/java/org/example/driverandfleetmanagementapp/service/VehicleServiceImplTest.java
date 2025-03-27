@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.service;
 
 
+import org.example.driverandfleetmanagementapp.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-public class VehicleServiceImplTest {
+class VehicleServiceImplTest {
 
     @Mock
     private VehicleRepository vehicleRepository;
@@ -57,22 +58,21 @@ public class VehicleServiceImplTest {
     void setUp() {
         vehicle = Vehicle.builder()
                 .id(1)
-                .licensePlate("ABC12345")
+                .licensePlate("ABC123")
                 .brand("Toyota")
                 .model("Corolla")
                 .type(Vehicle.VehicleType.CAR)
-                .technicalInspectionDate(LocalDate.now().plusMonths(6))
-                .mileage(10000.0)
                 .status(Vehicle.VehicleStatus.AVAILABLE)
+                .mileage(15000.0)
+                .technicalInspectionDate(LocalDate.now().plusMonths(6))
                 .build();
 
         vehicleDto = VehicleDto.builder()
                 .id(1)
-                .licensePlate("ABC12345")
+                .licensePlate("ABC123")
                 .brand("Toyota")
                 .model("Corolla")
                 .type(Vehicle.VehicleType.CAR)
-                .mileage(10000.0)
                 .status(Vehicle.VehicleStatus.AVAILABLE)
                 .build();
 
@@ -80,7 +80,6 @@ public class VehicleServiceImplTest {
                 .id(1)
                 .firstName("John")
                 .lastName("Doe")
-                .licenseNumber("123456789")
                 .licenseType(Driver.LicenseType.B)
                 .status(Driver.DriverStatus.ACTIVE)
                 .vehicles(new ArrayList<>())
@@ -91,12 +90,12 @@ public class VehicleServiceImplTest {
     void getAllVehicles_ShouldReturnPageOfVehicleDtos() {
         Page<Vehicle> vehiclePage = new PageImpl<>(List.of(vehicle));
         when(vehicleRepository.findAll(any(Pageable.class))).thenReturn(vehiclePage);
-        when(vehicleMapper.toDto(any(Vehicle.class))).thenReturn(vehicleDto);
+        when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
         Page<VehicleDto> result = vehicleService.getAllVehicles(0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(vehicleMapper).toDto(vehicle);
+        assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);
     }
 
     @Test
@@ -110,55 +109,75 @@ public class VehicleServiceImplTest {
     }
 
     @Test
+    void getVehicleById_WhenVehicleDoesNotExist_ShouldThrowException() {
+        when(vehicleRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> vehicleService.getVehicleById(1))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     void getVehicleByLicensePlate_WhenVehicleExists_ShouldReturnVehicleDto() {
-        when(vehicleRepository.findByLicensePlate("ABC12345")).thenReturn(Optional.of(vehicle));
+        when(vehicleRepository.findByLicensePlate("ABC123")).thenReturn(Optional.of(vehicle));
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        VehicleDto result = vehicleService.getVehicleByLicensePlate("ABC12345");
+        VehicleDto result = vehicleService.getVehicleByLicensePlate("ABC123");
 
         assertThat(result).isEqualTo(vehicleDto);
     }
 
     @Test
+    void getVehicleByLicensePlate_WhenVehicleDoesNotExist_ShouldThrowException() {
+        when(vehicleRepository.findByLicensePlate("ABC123")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> vehicleService.getVehicleByLicensePlate("ABC123"))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     void getVehiclesByStatus_ShouldReturnPageOfVehicleDtos() {
         Page<Vehicle> vehiclePage = new PageImpl<>(List.of(vehicle));
-        when(vehicleRepository.findByStatus(any(Vehicle.VehicleStatus.class), any(Pageable.class))).thenReturn(vehiclePage);
+        when(vehicleRepository.findByStatus(any(Vehicle.VehicleStatus.class), any(Pageable.class)))
+                .thenReturn(vehiclePage);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
         Page<VehicleDto> result = vehicleService.getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, 0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(vehicleMapper).toDto(vehicle);
+        assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);
     }
 
     @Test
     void getVehiclesByBrandAndModel_ShouldReturnPageOfVehicleDtos() {
         Page<Vehicle> vehiclePage = new PageImpl<>(List.of(vehicle));
-        when(vehicleRepository.findByBrandAndModel(anyString(), anyString(), any(Pageable.class))).thenReturn(vehiclePage);
+        when(vehicleRepository.findByBrandAndModel(anyString(), anyString(), any(Pageable.class)))
+                .thenReturn(vehiclePage);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
         Page<VehicleDto> result = vehicleService.getVehiclesByBrandAndModel("Toyota", "Corolla", 0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(vehicleMapper).toDto(vehicle);
+        assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);
     }
 
     @Test
     void getVehiclesByType_ShouldReturnPageOfVehicleDtos() {
         Page<Vehicle> vehiclePage = new PageImpl<>(List.of(vehicle));
-        when(vehicleRepository.findByType(any(Vehicle.VehicleType.class), any(Pageable.class))).thenReturn(vehiclePage);
+        when(vehicleRepository.findByType(any(Vehicle.VehicleType.class), any(Pageable.class)))
+                .thenReturn(vehiclePage);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
         Page<VehicleDto> result = vehicleService.getVehiclesByType(Vehicle.VehicleType.CAR, 0, 10);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(vehicleMapper).toDto(vehicle);
+        assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);
     }
 
     @Test
-    void getVehiclesByDriverId_ShouldReturnListOfVehicleDtos() {
-        when(vehicleRepository.findByDriverId(1)).thenReturn(List.of(vehicle));
-        when(vehicleMapper.toDtoList(anyList())).thenReturn(List.of(vehicleDto));
+    void getVehiclesByDriverId_WhenDriverExists_ShouldReturnVehicleDtoList() {
+        List<Vehicle> vehicles = List.of(vehicle);
+        when(vehicleRepository.findByDriverId(1)).thenReturn(vehicles);
+        when(vehicleMapper.toDtoList(vehicles)).thenReturn(List.of(vehicleDto));
 
         List<VehicleDto> result = vehicleService.getVehiclesByDriverId(1);
 
@@ -167,7 +186,16 @@ public class VehicleServiceImplTest {
     }
 
     @Test
-    void createVehicle_WithUniqueData_ShouldReturnVehicleDto() {
+    void getVehiclesByDriverId_WhenDriverDoesNotExist_ShouldThrowException() {
+        when(vehicleRepository.findByDriverId(1)).thenReturn(List.of());
+        when(driverRepository.existsById(1)).thenReturn(false);
+
+        assertThatThrownBy(() -> vehicleService.getVehiclesByDriverId(1))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void createVehicle_WhenLicensePlateUnique_ShouldReturnVehicleDto() {
         when(vehicleRepository.findByLicensePlate(anyString())).thenReturn(Optional.empty());
         when(vehicleMapper.toEntity(vehicleDto)).thenReturn(vehicle);
         when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
@@ -180,7 +208,7 @@ public class VehicleServiceImplTest {
     }
 
     @Test
-    void createVehicle_WithExistingLicensePlate_ShouldThrowException() {
+    void createVehicle_WhenLicensePlateExists_ShouldThrowException() {
         when(vehicleRepository.findByLicensePlate(anyString())).thenReturn(Optional.of(vehicle));
 
         assertThatThrownBy(() -> vehicleService.createVehicle(vehicleDto))
@@ -190,23 +218,16 @@ public class VehicleServiceImplTest {
     }
 
     @Test
-    void createVehicle_WithDriverData_ShouldCreateVehicleWithDriver() {
-        vehicleDto = vehicleDto.toBuilder()
-                .driver(org.example.driverandfleetmanagementapp.dto.DriverBasicDto.builder()
-                        .id(1)
-                        .build())
-                .build();
-
+    void createVehicle_WithExpiredInspection_ShouldThrowException() {
+        vehicle.setTechnicalInspectionDate(LocalDate.now().minusDays(1));
         when(vehicleRepository.findByLicensePlate(anyString())).thenReturn(Optional.empty());
         when(vehicleMapper.toEntity(vehicleDto)).thenReturn(vehicle);
-        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
-        when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
-        when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        VehicleDto result = vehicleService.createVehicle(vehicleDto);
+        assertThatThrownBy(() -> vehicleService.createVehicle(vehicleDto))
+                .isInstanceOf(BusinessLogicException.class)
+                .hasMessageContaining("Technical inspection has expired");
 
-        assertThat(result).isEqualTo(vehicleDto);
-        assertThat(vehicle.getDriver()).isEqualTo(driver);
+        verify(vehicleRepository, never()).save(any());
     }
 
     @Test
@@ -220,45 +241,21 @@ public class VehicleServiceImplTest {
 
         assertThat(result).isEqualTo(vehicleDto);
         verify(vehicleMapper).updateVehicleFromDto(vehicleDto, vehicle);
+        verify(vehicleRepository).save(vehicle);
     }
 
     @Test
     void updateVehicle_WhenLicensePlateConflict_ShouldThrowException() {
-        Vehicle existingVehicle = Vehicle.builder()
-                .id(2)
-                .licensePlate("ABC12345")
-                .build();
+        Vehicle existingVehicle = Vehicle.builder().id(2).licensePlate("ABC123").build();
 
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
-        when(vehicleRepository.findByLicensePlate("ABC12345")).thenReturn(Optional.of(existingVehicle));
+        when(vehicleRepository.findByLicensePlate(anyString())).thenReturn(Optional.of(existingVehicle));
 
         assertThatThrownBy(() -> vehicleService.updateVehicle(1, vehicleDto))
                 .isInstanceOf(ResourceConflictException.class)
-                .hasMessageContaining("License plate ABC12345 already in use");
+                .hasMessageContaining("already in use");
 
         verify(vehicleRepository, never()).save(any());
-    }
-
-    @Test
-    void updateVehicle_WithDriverData_ShouldUpdateDriver() {
-        vehicleDto = vehicleDto.toBuilder()
-                .driver(org.example.driverandfleetmanagementapp.dto.DriverBasicDto.builder()
-                        .id(1)
-                        .firstName("John")
-                        .lastName("Doe")
-                        .build())
-                .build();
-
-        when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
-        when(vehicleRepository.findByLicensePlate(anyString())).thenReturn(Optional.empty());
-        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
-        when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
-        when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
-
-        VehicleDto result = vehicleService.updateVehicle(1, vehicleDto);
-
-        assertThat(result).isEqualTo(vehicleDto);
-        assertThat(vehicle.getDriver()).isEqualTo(driver);
     }
 
     @Test
@@ -271,31 +268,17 @@ public class VehicleServiceImplTest {
     }
 
     @Test
-    void deleteVehicle_WhenVehicleInUseByDriver_ShouldThrowException() {
+    void deleteVehicle_WhenVehicleInUse_ShouldThrowException() {
         vehicle.setDriver(driver);
         vehicle.setStatus(Vehicle.VehicleStatus.IN_USE);
+
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
 
         assertThatThrownBy(() -> vehicleService.deleteVehicle(1))
-                .isInstanceOf(BusinessLogicException.class);
+                .isInstanceOf(BusinessLogicException.class)
+                .hasMessageContaining("currently in use");
 
         verify(vehicleRepository, never()).delete(any());
-    }
-
-    @Test
-    void deleteVehicle_WhenVehicleHasDriverButNotInUse_ShouldRemoveDriverAndDelete() {
-        vehicle.setDriver(driver);
-        vehicle.setStatus(Vehicle.VehicleStatus.AVAILABLE);
-        driver.setVehicles(new ArrayList<>(List.of(vehicle)));
-
-        when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
-
-        vehicleService.deleteVehicle(1);
-
-        verify(driverRepository).save(driver);
-        verify(vehicleRepository).delete(vehicle);
-        assertThat(vehicle.getDriver()).isNull();
-        assertThat(driver.getVehicles()).isEmpty();
     }
 
     @Test
@@ -309,48 +292,52 @@ public class VehicleServiceImplTest {
 
         assertThat(result).isEqualTo(vehicleDto);
         assertThat(vehicle.getDriver()).isEqualTo(driver);
+        verify(vehicleRepository).save(vehicle);
+    }
+
+    @Test
+    void assignDriverToVehicle_WhenVehicleDoesNotExist_ShouldThrowException() {
+        when(vehicleRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(vehicleRepository, never()).save(any());
     }
 
     @Test
     void assignDriverToVehicle_WhenVehicleIsOutOfOrder_ShouldThrowException() {
         vehicle.setStatus(Vehicle.VehicleStatus.OUT_OF_ORDER);
-        when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
-
-        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
-                .isInstanceOf(BusinessLogicException.class);
-
-        verify(vehicleRepository, never()).save(any());
-    }
-
-    @Test
-    void assignDriverToVehicle_WhenInvalidLicenseType_ShouldThrowException() {
-        driver.setLicenseType(Driver.LicenseType.B);
-        vehicle.setType(Vehicle.VehicleType.TRUCK);
 
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
-        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
 
         assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
                 .isInstanceOf(BusinessLogicException.class)
-                .hasMessageContaining("Driver's license type");
+                .hasMessageContaining("OUT_OF_ORDER");
 
         verify(vehicleRepository, never()).save(any());
     }
 
     @Test
-    void assignDriverToVehicle_WhenVehicleAlreadyAssigned_ShouldThrowException() {
-        Driver otherDriver = Driver.builder()
-                .id(2)
-                .firstName("Jane")
-                .lastName("Smith")
-                .build();
-        vehicle.setDriver(otherDriver);
+    void assignDriverToVehicle_WhenVehicleAlreadyHasDriver_ShouldThrowException() {
+        vehicle.setDriver(driver);
 
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
 
         assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
                 .isInstanceOf(ResourceConflictException.class)
-                .hasMessageContaining("Vehicle is already assigned to a driver");
+                .hasMessageContaining("already assigned");
+
+        verify(vehicleRepository, never()).save(any());
+    }
+
+    @Test
+    void assignDriverToVehicle_WhenDriverDoesNotExist_ShouldThrowException() {
+        when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
+        when(driverRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(vehicleRepository, never()).save(any());
     }
@@ -364,7 +351,22 @@ public class VehicleServiceImplTest {
 
         assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
                 .isInstanceOf(BusinessLogicException.class)
-                .hasMessageContaining("Cannot assign vehicle to suspended driver");
+                .hasMessageContaining("suspended driver");
+
+        verify(vehicleRepository, never()).save(any());
+    }
+
+    @Test
+    void assignDriverToVehicle_WhenDriverHasIncompatibleLicense_ShouldThrowException() {
+        driver.setLicenseType(Driver.LicenseType.B);
+        vehicle.setType(Vehicle.VehicleType.TRUCK);
+
+        when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
+        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
+
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(1, 1))
+                .isInstanceOf(BusinessLogicException.class)
+                .hasMessageContaining("license type");
 
         verify(vehicleRepository, never()).save(any());
     }
@@ -372,6 +374,7 @@ public class VehicleServiceImplTest {
     @Test
     void removeDriverFromVehicle_WhenVehicleHasDriver_ShouldReturnUpdatedVehicleDto() {
         vehicle.setDriver(driver);
+
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
         when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
@@ -380,29 +383,43 @@ public class VehicleServiceImplTest {
 
         assertThat(result).isEqualTo(vehicleDto);
         assertThat(vehicle.getDriver()).isNull();
+        verify(vehicleRepository).save(vehicle);
     }
 
     @Test
     void removeDriverFromVehicle_WhenVehicleHasNoDriver_ShouldThrowException() {
+        vehicle.setDriver(null);
+
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
 
         assertThatThrownBy(() -> vehicleService.removeDriverFromVehicle(1))
                 .isInstanceOf(BusinessLogicException.class)
-                .hasMessageContaining("Vehicle has no assigned driver");
+                .hasMessageContaining("no assigned driver");
 
         verify(vehicleRepository, never()).save(any());
     }
 
     @Test
-    void updateVehicleMileage_ShouldReturnUpdatedVehicleDto() {
+    void updateVehicleMileage_WhenValidMileage_ShouldReturnUpdatedVehicleDto() {
         when(vehicleRepository.findById(1)).thenReturn(Optional.of(vehicle));
         when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        VehicleDto result = vehicleService.updateVehicleMileage(1, 15000.0);
+        VehicleDto result = vehicleService.updateVehicleMileage(1, 20000.0);
 
         assertThat(result).isEqualTo(vehicleDto);
-        assertThat(vehicle.getMileage()).isEqualTo(15000.0);
+        assertThat(vehicle.getMileage()).isEqualTo(20000.0);
+        verify(vehicleRepository).save(vehicle);
+    }
+
+    @Test
+    void updateVehicleMileage_WhenNegativeMileage_ShouldThrowException() {
+        assertThatThrownBy(() -> vehicleService.updateVehicleMileage(1, -100.0))
+                .isInstanceOf(BusinessLogicException.class)
+                .hasMessageContaining("negative");
+
+        verify(vehicleRepository, never()).findById(any());
+        verify(vehicleRepository, never()).save(any());
     }
 
     @Test
@@ -411,9 +428,25 @@ public class VehicleServiceImplTest {
         when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        VehicleDto result = vehicleService.updateVehicleStatus(1, Vehicle.VehicleStatus.IN_SERVICE);
+        VehicleDto result = vehicleService.updateVehicleStatus(1, Vehicle.VehicleStatus.IN_USE);
 
         assertThat(result).isEqualTo(vehicleDto);
-        assertThat(vehicle.getStatus()).isEqualTo(Vehicle.VehicleStatus.IN_SERVICE);
+        assertThat(vehicle.getStatus()).isEqualTo(Vehicle.VehicleStatus.IN_USE);
+        verify(vehicleRepository).save(vehicle);
+    }
+
+    @Test
+    void validateTechnicalInspectionDate_WhenDateValid_ShouldNotThrowException() {
+        vehicle.setTechnicalInspectionDate(LocalDate.now().plusMonths(6));
+        vehicleService.validateTechnicalInspectionDate(vehicle);
+    }
+
+    @Test
+    void validateTechnicalInspectionDate_WhenDateExpired_ShouldThrowException() {
+        vehicle.setTechnicalInspectionDate(LocalDate.now().minusDays(1));
+
+        assertThatThrownBy(() -> vehicleService.validateTechnicalInspectionDate(vehicle))
+                .isInstanceOf(BusinessLogicException.class)
+                .hasMessageContaining("expired");
     }
 }

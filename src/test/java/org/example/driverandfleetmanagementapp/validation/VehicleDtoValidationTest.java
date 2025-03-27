@@ -7,28 +7,30 @@ import jakarta.validation.ValidatorFactory;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
-
 import java.time.LocalDate;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 @ActiveProfiles("test")
 public class VehicleDtoValidationTest {
 
     private static Validator validator;
+    private VehicleDto validVehicleDto;
 
     @BeforeAll
-    static void setUp() {
+    static void setUpValidator() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
 
-    @Test
-    void validVehicleDto_ShouldHaveNoViolations() {
-        VehicleDto vehicleDto = VehicleDto.builder()
+    @BeforeEach
+    void setUpValidVehicleDto() {
+        validVehicleDto = VehicleDto.builder()
                 .brand("Toyota")
                 .model("Corolla")
                 .licensePlate("ABC123")
@@ -40,23 +42,20 @@ public class VehicleDtoValidationTest {
                 .productionYear(2020)
                 .build();
 
-        Set<ConstraintViolation<VehicleDto>> violations = validator.validate(vehicleDto);
+        Set<ConstraintViolation<VehicleDto>> baseViolations = validator.validate(validVehicleDto);
+        assertThat(baseViolations).isEmpty();
+    }
 
+    @Test
+    void validVehicleDto_ShouldHaveNoViolations() {
+        Set<ConstraintViolation<VehicleDto>> violations = validator.validate(validVehicleDto);
         assertThat(violations).isEmpty();
     }
 
     @Test
     void blankBrand_ShouldHaveViolation() {
-        VehicleDto vehicleDto = VehicleDto.builder()
+        VehicleDto vehicleDto = validVehicleDto.toBuilder()
                 .brand("")
-                .model("Corolla")
-                .licensePlate("ABC123")
-                .type(Vehicle.VehicleType.CAR)
-                .registrationDate(LocalDate.of(2020, 1, 1))
-                .technicalInspectionDate(LocalDate.now().plusDays(1))
-                .mileage(10000.0)
-                .status(Vehicle.VehicleStatus.AVAILABLE)
-                .productionYear(2020)
                 .build();
 
         Set<ConstraintViolation<VehicleDto>> violations = validator.validate(vehicleDto);
@@ -68,16 +67,8 @@ public class VehicleDtoValidationTest {
 
     @Test
     void invalidLicensePlate_ShouldHaveViolation() {
-        VehicleDto vehicleDto = VehicleDto.builder()
-                .brand("Toyota")
-                .model("Corolla")
+        VehicleDto vehicleDto = validVehicleDto.toBuilder()
                 .licensePlate("A")
-                .type(Vehicle.VehicleType.CAR)
-                .registrationDate(LocalDate.of(2020, 1, 1))
-                .technicalInspectionDate(LocalDate.now().plusDays(1))
-                .mileage(10000.0)
-                .status(Vehicle.VehicleStatus.AVAILABLE)
-                .productionYear(2020)
                 .build();
 
         Set<ConstraintViolation<VehicleDto>> violations = validator.validate(vehicleDto);
@@ -89,16 +80,8 @@ public class VehicleDtoValidationTest {
 
     @Test
     void pastTechnicalInspectionDate_ShouldHaveViolation() {
-        VehicleDto vehicleDto = VehicleDto.builder()
-                .brand("Toyota")
-                .model("Corolla")
-                .licensePlate("ABC123")
-                .type(Vehicle.VehicleType.CAR)
-                .registrationDate(LocalDate.of(2020, 1, 1))
+        VehicleDto vehicleDto = validVehicleDto.toBuilder()
                 .technicalInspectionDate(LocalDate.now().minusDays(1))
-                .mileage(10000.0)
-                .status(Vehicle.VehicleStatus.AVAILABLE)
-                .productionYear(2020)
                 .build();
 
         Set<ConstraintViolation<VehicleDto>> violations = validator.validate(vehicleDto);
@@ -110,16 +93,8 @@ public class VehicleDtoValidationTest {
 
     @Test
     void negativeMileage_ShouldHaveViolation() {
-        VehicleDto vehicleDto = VehicleDto.builder()
-                .brand("Toyota")
-                .model("Corolla")
-                .licensePlate("ABC123")
-                .type(Vehicle.VehicleType.CAR)
-                .registrationDate(LocalDate.of(2020, 1, 1))
-                .technicalInspectionDate(LocalDate.now().plusDays(1))
+        VehicleDto vehicleDto = validVehicleDto.toBuilder()
                 .mileage(-100.0)
-                .status(Vehicle.VehicleStatus.AVAILABLE)
-                .productionYear(2020)
                 .build();
 
         Set<ConstraintViolation<VehicleDto>> violations = validator.validate(vehicleDto);
