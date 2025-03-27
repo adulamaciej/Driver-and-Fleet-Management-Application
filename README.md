@@ -50,7 +50,16 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **PostgreSQL**: Production database
 - **H2**: Development and testing database
 - **Lombok**: For boilerplate code reduction
+-  **Jenkins**: CI/CD configuration
 
+
+## Jenkins Setup
+- Start all the container: docker-compose up -d
+- Access jenkins: http://localhost:8090
+- Get initial admin password: docker exec driver-and-fleet-management-application-jenkins-1 cat /var/jenkins_home/secrets/initialAdminPassword
+- Complete the setup process
+- Install additional plugins:
+- Configure a new pipeline
 
 
 ## Project Structure
