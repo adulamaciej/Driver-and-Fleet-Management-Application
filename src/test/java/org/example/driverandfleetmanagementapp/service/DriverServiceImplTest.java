@@ -368,4 +368,26 @@ class DriverServiceImplTest {
 
         verify(driverRepository, never()).save(any());
     }
+
+    @Test
+    void assignVehicleToDriver_WhenDriverHasMaxVehicles_ShouldThrowException() {
+        Vehicle vehicle1 = Vehicle.builder().id(1).build();
+        Vehicle vehicle2 = Vehicle.builder().id(2).build();
+        List<Vehicle> existingVehicles = new ArrayList<>();
+        existingVehicles.add(vehicle1);
+        existingVehicles.add(vehicle2);
+
+        driver.setVehicles(existingVehicles);
+
+        Vehicle newVehicle = Vehicle.builder().id(3).build();
+
+        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
+        when(vehicleRepository.findById(3)).thenReturn(Optional.of(newVehicle));
+
+        assertThatThrownBy(() -> driverService.assignVehicleToDriver(1, 3))
+                .isInstanceOf(BusinessLogicException.class)
+                .hasMessageContaining("You cannot have more than 2 vehicles assigned");
+
+        verify(driverRepository, never()).save(any());
+    }
 }

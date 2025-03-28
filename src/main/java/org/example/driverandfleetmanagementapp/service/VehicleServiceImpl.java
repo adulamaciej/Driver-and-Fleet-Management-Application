@@ -208,11 +208,16 @@ public class VehicleServiceImpl implements VehicleService {
             throw new ResourceConflictException("Vehicle is already assigned to a driver");
         }
 
+
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + driverId + " not found"));
 
         if (driver.getStatus() == Driver.DriverStatus.SUSPENDED) {
             throw new BusinessLogicException("Cannot assign vehicle to suspended driver");
+        }
+
+        if (driver.getVehicles().size() >= 2){
+            throw new BusinessLogicException("Driver cannot have more than 2 vehicles assigned");
         }
 
         if (!LicenseValidator.canDriverOperateVehicle(driver.getLicenseType(), vehicle.getType())) {

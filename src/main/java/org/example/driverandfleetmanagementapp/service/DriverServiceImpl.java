@@ -194,6 +194,10 @@ public class DriverServiceImpl implements DriverService {
             throw new ResourceConflictException("Vehicle is already assigned to a driver");
         }
 
+        if (driver.getVehicles().size() >= 2){
+            throw new BusinessLogicException("You cannot have more than 2 vehicles assigned");
+        }
+
         if (!LicenseValidator.canDriverOperateVehicle(driver.getLicenseType(), vehicle.getType())) {
             throw new BusinessLogicException("Driver's license type " + driver.getLicenseType() +
                     " does not allow operating vehicle of type " + vehicle.getType());

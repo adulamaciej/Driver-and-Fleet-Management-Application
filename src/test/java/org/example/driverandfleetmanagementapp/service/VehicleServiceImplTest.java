@@ -449,4 +449,25 @@ class VehicleServiceImplTest {
                 .isInstanceOf(BusinessLogicException.class)
                 .hasMessageContaining("expired");
     }
+    @Test
+    void assignDriverToVehicle_WhenDriverHasMaxVehicles_ShouldThrowException() {
+        Vehicle vehicle1 = Vehicle.builder().id(1).build();
+        Vehicle vehicle2 = Vehicle.builder().id(2).build();
+        List<Vehicle> existingVehicles = new ArrayList<>();
+        existingVehicles.add(vehicle1);
+        existingVehicles.add(vehicle2);
+
+        driver.setVehicles(existingVehicles);
+
+        Vehicle newVehicle = Vehicle.builder().id(3).build();
+
+        when(vehicleRepository.findById(3)).thenReturn(Optional.of(newVehicle));
+        when(driverRepository.findById(1)).thenReturn(Optional.of(driver));
+
+        assertThatThrownBy(() -> vehicleService.assignDriverToVehicle(3, 1))
+                .isInstanceOf(BusinessLogicException.class)
+                .hasMessageContaining("Driver cannot have more than 2 vehicles assigned");
+
+        verify(vehicleRepository, never()).save(any());
+    }
 }
