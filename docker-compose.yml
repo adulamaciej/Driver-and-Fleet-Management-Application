@@ -40,7 +40,7 @@ services:
       start_period: 40s
 
   jenkins:
-      image: jenkins/jenkins:lts-jdk17
+      image: jenkins/jenkins:lts-jdk21
       ports:
         - "8090:8080"
         - "50000:50000"
