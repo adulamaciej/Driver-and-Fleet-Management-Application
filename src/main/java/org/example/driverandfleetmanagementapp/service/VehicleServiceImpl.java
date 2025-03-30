@@ -216,7 +216,7 @@ public class VehicleServiceImpl implements VehicleService {
             throw new BusinessLogicException("Cannot assign vehicle to suspended driver");
         }
 
-        if (driver.getVehicles().size() >= 2){
+        if (driver.getVehicles().size() >= 2) {
             throw new BusinessLogicException("Driver cannot have more than 2 vehicles assigned");
         }
 
@@ -229,7 +229,6 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toDto(vehicle);
     }
-
 
 
     @Override
@@ -304,5 +303,20 @@ public class VehicleServiceImpl implements VehicleService {
             throw new BusinessLogicException("Technical inspection has expired for vehicle with license plate "
                     + vehicle.getLicensePlate() + ". Inspection date: " + inspectionDate);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Vehicle> getVehiclesWithUpcomingInspection(int days) {
+        log.info("Getting vehicles with upcoming inspection");
+        log.debug("Finding vehicles with technical inspection in the next {} days, method=getVehiclesWithUpcomingInspection", days);
+
+        LocalDate today = LocalDate.now();
+        LocalDate endDate = today.plusDays(days);
+
+        List<Vehicle> vehicles = vehicleRepository.findByTechnicalInspectionDateBetween(today, endDate);
+        log.debug("Found {} vehicles with upcoming inspection", vehicles.size());
+
+        return vehicles;
     }
 }

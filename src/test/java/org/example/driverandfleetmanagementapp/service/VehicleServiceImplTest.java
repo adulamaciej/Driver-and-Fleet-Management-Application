@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -470,4 +471,49 @@ class VehicleServiceImplTest {
 
         verify(vehicleRepository, never()).save(any());
     }
+    @Test
+    void getVehiclesWithUpcomingInspection_ShouldReturnVehiclesWithInspectionInDateRange() {
+        // Arrange
+        LocalDate today = LocalDate.now();
+        LocalDate endDate = today.plusDays(30);
+
+        List<Vehicle> expectedVehicles = List.of(
+                Vehicle.builder()
+                        .id(1)
+                        .licensePlate("ABC123")
+                        .technicalInspectionDate(today.plusDays(10))
+                        .build(),
+                Vehicle.builder()
+                        .id(2)
+                        .licensePlate("XYZ789")
+                        .technicalInspectionDate(today.plusDays(25))
+                        .build()
+        );
+
+        when(vehicleRepository.findByTechnicalInspectionDateBetween(any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(expectedVehicles);
+
+        List<Vehicle> result = vehicleService.getVehiclesWithUpcomingInspection(30);
+
+
+        assertThat(result).hasSize(2);
+        assertThat(result).isEqualTo(expectedVehicles);
+        verify(vehicleRepository).findByTechnicalInspectionDateBetween(
+                argThat(date -> date.equals(today) || date.isBefore(today.plusDays(1))),
+                argThat(date -> date.equals(endDate) || date.isAfter(endDate.minusDays(1)))
+        );
+    }
+
+    @Test
+    void getVehiclesWithUpcomingInspection_WhenNoVehiclesFound_ShouldReturnEmptyList() {
+        // Arrange
+        when(vehicleRepository.findByTechnicalInspectionDateBetween(any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(Collections.emptyList());
+
+        List<Vehicle> result = vehicleService.getVehiclesWithUpcomingInspection(30);
+
+        assertThat(result).isEmpty();
+        verify(vehicleRepository).findByTechnicalInspectionDateBetween(any(LocalDate.class), any(LocalDate.class));
+    }
+
 }

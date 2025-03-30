@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,8 +43,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
     @Override
     Optional<Vehicle> findById(@NonNull Integer id);
 
-
-
+    List<Vehicle> findByTechnicalInspectionDateBetween(LocalDate startDate, LocalDate endDate);
 
 
 }

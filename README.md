@@ -24,7 +24,10 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - Prevent invalid assignments (suspended drivers, out-of-order vehicles)
 - Enforce business rules (license compatibility, status restrictions)
 
-
+### Asynchronous Notifications
+- Automatic detection of vehicles with upcoming technical inspections
+- Background processing of notifications without blocking API responses
+- Configurable time range for checking inspection dates
 
 ### API Documentation
 - Open API
@@ -51,6 +54,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **H2**: Development and testing database
 - **Lombok**: For boilerplate code reduction
 -  **Jenkins**: CI/CD configuration
+- **Asynchronous Processing**: Non-blocking request handling with @Async and CompletableFuture
 
 
 ## Jenkins Setup
@@ -146,7 +150,8 @@ The application supports multiple environment profiles:
 - `POST /api/vehicles/{vehicleId}/driver/{driverId}`: Assign driver to vehicle
 - `DELETE /api/vehicles/{vehicleId}/driver`: Remove driver from vehicle
 
-
+### Notification Endpoints
+- `POST /api/notifications/inspection-reminders`: Send notifications for vehicles with upcoming technical inspections
 
 ## Security
 

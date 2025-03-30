@@ -30,4 +30,6 @@ public interface VehicleService {
 
 
     void validateTechnicalInspectionDate(Vehicle vehicle);
+
+    List<Vehicle> getVehiclesWithUpcomingInspection(int days);
 }
