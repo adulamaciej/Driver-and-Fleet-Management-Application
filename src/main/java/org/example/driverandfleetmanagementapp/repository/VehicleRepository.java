@@ -43,6 +43,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
     @Override
     Optional<Vehicle> findById(@NonNull Integer id);
 
+    @EntityGraph(attributePaths = {"driver"})
     List<Vehicle> findByTechnicalInspectionDateBetween(LocalDate startDate, LocalDate endDate);
 
 
