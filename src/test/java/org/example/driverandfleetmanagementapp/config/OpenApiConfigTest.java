@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -13,8 +14,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 public class OpenApiConfigTest {
 
-    private final OpenApiConfig openApiConfig = new OpenApiConfig();
-    private final OpenAPI openAPI = openApiConfig.fleetManagementApiConfig();
+
+    private  OpenAPI openAPI;
+
+    @BeforeEach
+    void setUp(){
+        OpenApiConfig openApiConfig = new OpenApiConfig();
+        openAPI = openApiConfig.fleetManagementApiConfig();
+    }
+
 
     @Test
     void openApiInfoShouldBeConfiguredCorrectly() {

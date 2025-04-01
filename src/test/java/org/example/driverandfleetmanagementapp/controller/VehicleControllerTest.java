@@ -166,8 +166,6 @@ class VehicleControllerTest {
 
     @Test
     void deleteVehicle_ShouldReturnNoContent() {
-        doNothing().when(vehicleService).deleteVehicle(anyInt());
-
         ResponseEntity<Void> response = vehicleController.deleteVehicle(1);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
