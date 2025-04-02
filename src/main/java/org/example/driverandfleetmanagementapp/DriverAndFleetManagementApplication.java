@@ -10,7 +10,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 
 
 @SpringBootApplication
-@EnableAsync //
+@EnableAsync
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO) // Enables easy, automatic pagination support.
 public class DriverAndFleetManagementApplication {
 
