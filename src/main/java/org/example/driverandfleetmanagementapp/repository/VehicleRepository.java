@@ -16,6 +16,14 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
     //Solving N+1 problem with @EntityGraph
 
     @EntityGraph(attributePaths = {"driver"})
+    @NonNull
+    @Override
+    Optional<Vehicle> findById(@NonNull Integer id);
+
+    @EntityGraph(attributePaths = {"driver"})
+    Optional<Vehicle> findByLicensePlate(String licensePlate);
+
+    @EntityGraph(attributePaths = {"driver"})
     Page<Vehicle> findByType(Vehicle.VehicleType type, Pageable pageable);
 
     @EntityGraph(attributePaths = {"driver"})
@@ -25,23 +33,14 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
     Page<Vehicle> findByBrandAndModel(String brand, String model, Pageable pageable);
 
     @EntityGraph(attributePaths = {"driver"})
-    Optional<Vehicle> findByLicensePlate(String licensePlate);
-
-    @EntityGraph(attributePaths = {"driver"})
     List<Vehicle> findByDriverId(Integer driverId);
 
     boolean existsByDriverId(Integer driverId);
-
 
     @EntityGraph(attributePaths = {"driver"})
     @NonNull
     @Override
     Page<Vehicle> findAll(@NonNull Pageable pageable);
-
-    @EntityGraph(attributePaths = {"driver"})
-    @NonNull
-    @Override
-    Optional<Vehicle> findById(@NonNull Integer id);
 
     @EntityGraph(attributePaths = {"driver"})
     List<Vehicle> findByTechnicalInspectionDateBetween(LocalDate startDate, LocalDate endDate);
