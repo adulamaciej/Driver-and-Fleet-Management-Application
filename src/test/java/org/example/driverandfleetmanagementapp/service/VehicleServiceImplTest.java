@@ -473,7 +473,7 @@ class VehicleServiceImplTest {
     }
     @Test
     void getVehiclesWithUpcomingInspection_ShouldReturnVehiclesWithInspectionInDateRange() {
-        // Arrange
+
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusDays(30);
 
@@ -506,7 +506,7 @@ class VehicleServiceImplTest {
 
     @Test
     void getVehiclesWithUpcomingInspection_WhenNoVehiclesFound_ShouldReturnEmptyList() {
-        // Arrange
+
         when(vehicleRepository.findByTechnicalInspectionDateBetween(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(Collections.emptyList());
 

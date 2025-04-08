@@ -1,9 +1,7 @@
 package org.example.driverandfleetmanagementapp.controller;
 
-import org.example.driverandfleetmanagementapp.model.Vehicle;
+
 import org.example.driverandfleetmanagementapp.service.NotificationService;
-import org.example.driverandfleetmanagementapp.service.VehicleService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,25 +10,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class NotificationControllerTest {
-
-    @Mock
-    private VehicleService vehicleService;
 
     @Mock
     private NotificationService notificationService;
@@ -38,64 +27,29 @@ class NotificationControllerTest {
     @InjectMocks
     private NotificationController notificationController;
 
-    private List<Vehicle> vehicles;
-
-    @BeforeEach
-    void setUp() {
-        Vehicle vehicle1 = Vehicle.builder()
-                .id(1)
-                .licensePlate("ABC123")
-                .brand("Toyota")
-                .model("Corolla")
-                .technicalInspectionDate(LocalDate.now().plusDays(15))
-                .build();
-
-        Vehicle vehicle2 = Vehicle.builder()
-                .id(2)
-                .licensePlate("XYZ789")
-                .brand("Honda")
-                .model("Civic")
-                .technicalInspectionDate(LocalDate.now().plusDays(25))
-                .build();
-
-        vehicles = List.of(vehicle1, vehicle2);
-
-    }
-
 
     @Test
-    void sendInspectionReminders_WhenVehiclesFound_ShouldProcessNotifications() {
-        when(vehicleService.getVehiclesWithUpcomingInspection(anyInt())).thenReturn(vehicles);
-        when(notificationService.sendInspectionReminderNotification(any()))
-                .thenReturn(CompletableFuture.completedFuture(null));
+    void sendInspectionReminders_WhenVehiclesExist_ShouldReturnAcceptedResponse() {
+        Map<String, Object> mockResponse = Map.of("message", "Processing 2 inspection reminder notifications",
+                "vehicles", List.of(Map.of("id", 1), Map.of("id", 2)));
+
+        when(notificationService.processInspectionReminders(30)).thenReturn(mockResponse);
 
         ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(30);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-        assertThat(Objects.requireNonNull(response.getBody()).get("message")).isEqualTo("Processing 2 inspection reminder notifications");
-        assertThat((List<?>)response.getBody().get("vehicles")).hasSize(2);
-        verify(notificationService, times(2)).sendInspectionReminderNotification(any());
+        assertThat(response.getBody()).isEqualTo(mockResponse);
     }
 
     @Test
-    void sendInspectionReminders_WhenNoVehiclesFound_ShouldReturnMessage() {
-        when(vehicleService.getVehiclesWithUpcomingInspection(anyInt())).thenReturn(Collections.emptyList());
+    void sendInspectionReminders_WhenNoVehicles_ShouldReturnAcceptedResponse() {
+        Map<String, Object> mockResponse = Map.of("message", "No vehicles with upcoming inspections found");
 
-        ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(30);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(Objects.requireNonNull(response.getBody()).get("message")).isEqualTo("No vehicles with upcoming inspections found");
-        verify(notificationService, never()).sendInspectionReminderNotification(any());
-    }
-
-    @Test
-    void sendInspectionReminders_WhenNotificationFails_ShouldHandleExceptionAndReturnAccepted() {
-        when(vehicleService.getVehiclesWithUpcomingInspection(anyInt())).thenReturn(vehicles);
-        when(notificationService.sendInspectionReminderNotification(any(Vehicle.class)))
-                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Test exception")));
+        when(notificationService.processInspectionReminders(30)).thenReturn(mockResponse);
 
         ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(30);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(response.getBody()).isEqualTo(mockResponse);
     }
 }
