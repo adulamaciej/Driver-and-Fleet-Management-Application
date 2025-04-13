@@ -6,11 +6,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
 import org.example.driverandfleetmanagementapp.model.Driver;
 import org.example.driverandfleetmanagementapp.service.DriverService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
-@Slf4j
 @Tag(name = "Driver Management", description = "APIs for managing drivers")
 public class DriverController {
 
@@ -33,10 +33,9 @@ public class DriverController {
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     public ResponseEntity<Page<DriverDto>> getAllDrivers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Getting all drivers");
-        log.debug("REST request to get all drivers, page: {}, size: {}, method=getAllDrivers", page, size);
-        return ResponseEntity.ok(driverService.getAllDrivers(page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(driverService.getAllDrivers(PageRequest.of(page, size, Sort.by(sortBy).ascending())));
     }
 
     @GetMapping("/{id}")
@@ -46,8 +45,6 @@ public class DriverController {
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<DriverDto> getDriverById(
             @PathVariable Integer id) {
-        log.info("Getting driver by ID");
-        log.debug("REST request to get driver with ID: {}, method=getDriverById", id);
         return ResponseEntity.ok(driverService.getDriverById(id));
     }
 
@@ -58,8 +55,6 @@ public class DriverController {
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<DriverDto> getDriverByLicenseNumber(
             @PathVariable String licenseNumber) {
-        log.info("Getting driver by license number");
-        log.debug("REST request to get driver with license number: {}, method=getDriverByLicenseNumber", licenseNumber);
         return ResponseEntity.ok(driverService.getDriverByLicenseNumber(licenseNumber));
     }
 
@@ -71,10 +66,9 @@ public class DriverController {
     public ResponseEntity<Page<DriverDto>> getDriversByStatus(
             @PathVariable Driver.DriverStatus status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Getting drivers by status");
-        log.debug("REST request to get drivers with status: {}, page: {}, size: {}", status, page, size);
-        return ResponseEntity.ok(driverService.getDriversByStatus(status, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(driverService.getDriversByStatus(status, PageRequest.of(page, size, Sort.by(sortBy).ascending())));
     }
 
     @GetMapping("/search")
@@ -86,11 +80,9 @@ public class DriverController {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Search drivers by name");
-        log.debug("REST request to search drivers with first name: {} and last name: {}, page: {}, size: {}",
-                firstName, lastName, page, size);
-        return ResponseEntity.ok(driverService.getDriversByName(firstName, lastName, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(driverService.getDriversByName(firstName, lastName, PageRequest.of(page, size, Sort.by(sortBy).ascending())));
     }
 
     @GetMapping("/license-type/{licenseType}")
@@ -101,11 +93,9 @@ public class DriverController {
     public ResponseEntity<Page<DriverDto>> getDriversByLicenseType(
             @PathVariable Driver.LicenseType licenseType,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Getting drivers by license type");
-        log.debug("REST request to get drivers with license type: {}, page: {}, size: {}",
-                licenseType, page, size);
-        return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType,  PageRequest.of(page, size, Sort.by(sortBy).ascending())));
     }
 
     @PatchMapping("/{id}/status")
@@ -117,8 +107,6 @@ public class DriverController {
     public ResponseEntity<DriverDto> updateDriverStatus(
             @PathVariable Integer id,
             @RequestParam Driver.DriverStatus status) {
-        log.info("Updating driver status");
-        log.debug("REST request to update status for driver with ID: {} to {}, method=updateDriverStatus", id, status);
         return ResponseEntity.ok(driverService.updateDriverStatus(id, status));
     }
 
@@ -129,8 +117,6 @@ public class DriverController {
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     public ResponseEntity<DriverDto> createDriver(
             @Valid @RequestBody DriverDto driverDto) {
-        log.info("Creating driver");
-        log.debug("REST request to create a new driver: {}, method=createDriver", driverDto);
         return new ResponseEntity<>(driverService.createDriver(driverDto), HttpStatus.CREATED);
     }
 
@@ -144,8 +130,6 @@ public class DriverController {
     public ResponseEntity<DriverDto> updateDriver(
             @PathVariable Integer id,
             @Valid @RequestBody DriverDto driverDto) {
-        log.info("Updating driver");
-        log.debug("REST request to update driver with ID: {}, method=updateDriver", id);
         return ResponseEntity.ok(driverService.updateDriver(id, driverDto));
     }
 
@@ -157,8 +141,6 @@ public class DriverController {
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<Void> deleteDriver(
             @PathVariable Integer id) {
-        log.info("Deleting driver");
-        log.debug("REST request to delete driver with ID: {}, method=deleteDriver", id);
         driverService.deleteDriver(id);
         return ResponseEntity.noContent().build();
     }
@@ -172,8 +154,6 @@ public class DriverController {
     public ResponseEntity<DriverDto> assignVehicleToDriver(
             @PathVariable Integer driverId,
             @PathVariable Integer vehicleId) {
-        log.info("Assigning vehicles to driver");
-        log.debug("REST request to assign vehicle with ID: {} to driver with ID: {}, method=assignVehicleToDriver", vehicleId, driverId);
         return ResponseEntity.ok(driverService.assignVehicleToDriver(driverId, vehicleId));
     }
 
@@ -186,8 +166,6 @@ public class DriverController {
     public ResponseEntity<DriverDto> removeVehicleFromDriver(
             @PathVariable Integer driverId,
             @PathVariable Integer vehicleId) {
-        log.info("Removing vehicle from driver");
-        log.debug("REST request to remove vehicle with ID: {} from driver with ID: {}, method=removeVehicleFromDriver", vehicleId, driverId);
         return ResponseEntity.ok(driverService.removeVehicleFromDriver(driverId, vehicleId));
     }
 }

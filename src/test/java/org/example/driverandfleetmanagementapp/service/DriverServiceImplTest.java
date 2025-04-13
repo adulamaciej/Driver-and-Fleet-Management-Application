@@ -16,9 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -85,13 +83,15 @@ class DriverServiceImplTest {
     void getAllDrivers_ShouldReturnPageOfDriverDtos() {
         Page<Driver> driverPage = new PageImpl<>(List.of(driver));
         when(driverRepository.findAll(any(Pageable.class))).thenReturn(driverPage);
-        when(driverMapper.toDto(any(Driver.class))).thenReturn(driverDto);
+        when(driverMapper.toDto(driver)).thenReturn(driverDto);
 
-        Page<DriverDto> result = driverService.getAllDrivers(0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<DriverDto> result = driverService.getAllDrivers(pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
     }
+
 
     @Test
     void getDriverById_WhenDriverExists_ShouldReturnDriverDto() {
@@ -127,7 +127,8 @@ class DriverServiceImplTest {
         when(driverRepository.findByStatus(any(Driver.DriverStatus.class), any(Pageable.class))).thenReturn(driverPage);
         when(driverMapper.toDto(driver)).thenReturn(driverDto);
 
-        Page<DriverDto> result = driverService.getDriversByStatus(Driver.DriverStatus.ACTIVE, 0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<DriverDto> result = driverService.getDriversByStatus(Driver.DriverStatus.ACTIVE, pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
@@ -140,7 +141,8 @@ class DriverServiceImplTest {
                 .thenReturn(driverPage);
         when(driverMapper.toDto(driver)).thenReturn(driverDto);
 
-        Page<DriverDto> result = driverService.getDriversByName("John", "Doe", 0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<DriverDto> result = driverService.getDriversByName("John", "Doe", pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
@@ -153,7 +155,8 @@ class DriverServiceImplTest {
                 .thenReturn(driverPage);
         when(driverMapper.toDto(driver)).thenReturn(driverDto);
 
-        Page<DriverDto> result = driverService.getDriversByLicenseType(Driver.LicenseType.B, 0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<DriverDto> result = driverService.getDriversByLicenseType(Driver.LicenseType.B, pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(driverDto);

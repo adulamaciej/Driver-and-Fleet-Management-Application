@@ -6,11 +6,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.example.driverandfleetmanagementapp.service.VehicleService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/vehicles")
 @RequiredArgsConstructor
-@Slf4j
 @Tag(name = "Vehicle Management", description = "APIs for managing vehicles")
 public class VehicleController {
 
@@ -35,10 +35,9 @@ public class VehicleController {
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     public ResponseEntity<Page<VehicleDto>> getAllVehicles(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Get all vehicles");
-        log.debug("REST request to get all vehicles, page: {}, size: {}, method=getAllVehicles", page, size);
-        return ResponseEntity.ok(vehicleService.getAllVehicles(page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(vehicleService.getAllVehicles(PageRequest.of(page, size, Sort.by(sortBy).ascending())));
     }
 
     @GetMapping("/{id}")
@@ -48,8 +47,6 @@ public class VehicleController {
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> getVehicleById(
             @PathVariable Integer id) {
-        log.info("Get vehicle by ID");
-        log.debug("REST request to get vehicle with ID: {}, method=getVehicleById", id);
         return ResponseEntity.ok(vehicleService.getVehicleById(id));
     }
 
@@ -60,8 +57,6 @@ public class VehicleController {
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> getVehicleByLicensePlate(
             @PathVariable String licensePlate) {
-        log.info("Get vehicle by license plate");
-        log.debug("REST request to get vehicle with license plate: {}, method=getVehicleByLicensePlate", licensePlate);
         return ResponseEntity.ok(vehicleService.getVehicleByLicensePlate(licensePlate));
     }
 
@@ -73,10 +68,12 @@ public class VehicleController {
     public ResponseEntity<Page<VehicleDto>> getVehiclesByStatus(
             @PathVariable Vehicle.VehicleStatus status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Get vehicles by status");
-        log.debug("REST request to get vehicles with status: {}, page: {}, size: {}", status, page, size);
-        return ResponseEntity.ok(vehicleService.getVehiclesByStatus(status, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByStatus(
+                status,
+                PageRequest.of(page, size, Sort.by(sortBy).ascending())
+        ));
     }
 
     @GetMapping("/search")
@@ -88,11 +85,12 @@ public class VehicleController {
             @RequestParam String brand,
             @RequestParam String model,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Search vehicles by brand and model");
-        log.debug("REST request to search vehicles with brand: {} and model: {}, page: {}, size: {}",
-                brand, model, page, size);
-        return ResponseEntity.ok(vehicleService.getVehiclesByBrandAndModel(brand, model, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByBrandAndModel(
+                brand, model,
+                PageRequest.of(page, size, Sort.by(sortBy).ascending())
+        ));
     }
 
 
@@ -104,11 +102,14 @@ public class VehicleController {
     public ResponseEntity<Page<VehicleDto>> getVehiclesByType(
             @PathVariable Vehicle.VehicleType type,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("Get vehicles by type");
-        log.debug("REST request to get vehicles with type: {}, page: {}, size: {}", type, page, size);
-        return ResponseEntity.ok(vehicleService.getVehiclesByType(type, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByType(
+                type,
+                PageRequest.of(page, size, Sort.by(sortBy).ascending())
+        ));
     }
+
 
     @GetMapping("/driver/{driverId}")
     @Operation(summary = "Get vehicles by driver ID", description = "Retrieves vehicles assigned to a specific driver")
@@ -117,8 +118,6 @@ public class VehicleController {
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<List<VehicleDto>> getVehiclesByDriverId(
             @PathVariable Integer driverId) {
-        log.info("Getting vehicles by driver id");
-        log.debug("REST request to get vehicles for driver with ID: {}, method=getVehiclesByDriverId", driverId);
         return ResponseEntity.ok(vehicleService.getVehiclesByDriverId(driverId));
     }
 
@@ -130,8 +129,6 @@ public class VehicleController {
     @ApiResponse(responseCode = "409", description = "Vehicle already exists")
     public ResponseEntity<VehicleDto> createVehicle(
             @Valid @RequestBody VehicleDto vehicleDto) {
-        log.info("Creating vehicle");
-        log.debug("REST request to create a new vehicle: {}, method=createVehicle", vehicleDto);
         return new ResponseEntity<>(vehicleService.createVehicle(vehicleDto), HttpStatus.CREATED);
     }
 
@@ -145,8 +142,6 @@ public class VehicleController {
     public ResponseEntity<VehicleDto> updateVehicle(
             @PathVariable Integer id,
             @Valid @RequestBody VehicleDto vehicleDto) {
-        log.info("Update vehicle");
-        log.debug("REST request to update vehicle with ID: {}, method=updateVehicle", id);
         return ResponseEntity.ok(vehicleService.updateVehicle(id, vehicleDto));
     }
 
@@ -157,8 +152,6 @@ public class VehicleController {
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<Void> deleteVehicle(
             @PathVariable Integer id) {
-        log.info("Delete vehicle");
-        log.debug("REST request to delete vehicle with ID: {}, method=deleteVehicle", id);
         vehicleService.deleteVehicle(id);
         return ResponseEntity.noContent().build();
     }
@@ -172,8 +165,6 @@ public class VehicleController {
     public ResponseEntity<VehicleDto> assignDriverToVehicle(
             @PathVariable Integer vehicleId,
             @PathVariable Integer driverId) {
-        log.info("Assign driver to vehicle");
-        log.debug("REST request to assign driver with ID: {} to vehicle with ID: {}, method=assignDriverToVehicle", driverId, vehicleId);
         return ResponseEntity.ok(vehicleService.assignDriverToVehicle(vehicleId, driverId));
     }
 
@@ -185,8 +176,6 @@ public class VehicleController {
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> removeDriverFromVehicle(
             @PathVariable Integer vehicleId) {
-        log.info("Remove driver from vehicle");
-        log.debug("REST request to remove driver from vehicle with ID: {}, method=removeDriverFromVehicle", vehicleId);
         return ResponseEntity.ok(vehicleService.removeDriverFromVehicle(vehicleId));
     }
 
@@ -199,8 +188,6 @@ public class VehicleController {
     public ResponseEntity<VehicleDto> updateVehicleMileage(
             @PathVariable Integer id,
             @RequestParam Double mileage) {
-        log.info("Updating vehicle mileage");
-        log.debug("REST request to update mileage for vehicle with ID: {} to {}, method=updateVehicleMileage", id, mileage);
         return ResponseEntity.ok(vehicleService.updateVehicleMileage(id, mileage));
     }
 
@@ -213,8 +200,6 @@ public class VehicleController {
     public ResponseEntity<VehicleDto> updateVehicleStatus(
             @PathVariable Integer id,
             @RequestParam Vehicle.VehicleStatus status) {
-        log.info("Updating vehicle status");
-        log.debug("REST request to update status for vehicle with ID: {} to {}, method=updateVehicleStatus", id, status);
         return ResponseEntity.ok(vehicleService.updateVehicleStatus(id, status));
     }
 }

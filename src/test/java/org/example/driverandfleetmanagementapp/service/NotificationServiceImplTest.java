@@ -17,15 +17,16 @@ import java.util.concurrent.CompletableFuture;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-public class NotificationServiceTest {
+public class NotificationServiceImplTest {
 
     @Mock
     private VehicleService vehicleService;
 
     @InjectMocks
-    private NotificationService notificationService;
+    private NotificationServiceImpl notificationService;
 
     private Vehicle vehicle;
 

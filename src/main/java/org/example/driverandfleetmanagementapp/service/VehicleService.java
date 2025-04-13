@@ -3,6 +3,8 @@ package org.example.driverandfleetmanagementapp.service;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface VehicleService {
@@ -13,10 +15,10 @@ public interface VehicleService {
     List<VehicleDto> getVehiclesByDriverId(Integer driverId);
 
 
-    Page<VehicleDto> getAllVehicles(int page, int size);
-    Page<VehicleDto> getVehiclesByStatus(Vehicle.VehicleStatus status, int page, int size);
-    Page<VehicleDto> getVehiclesByBrandAndModel(String brand, String model, int page, int size);
-    Page<VehicleDto> getVehiclesByType(Vehicle.VehicleType type, int page, int size);
+    Page<VehicleDto> getAllVehicles(Pageable pageable);
+    Page<VehicleDto> getVehiclesByStatus(Vehicle.VehicleStatus status, Pageable pageable);
+    Page<VehicleDto> getVehiclesByBrandAndModel(String brand, String model, Pageable pageable);
+    Page<VehicleDto> getVehiclesByType(Vehicle.VehicleType type, Pageable pageable);
 
 
     VehicleDto createVehicle(VehicleDto vehicleDTO);

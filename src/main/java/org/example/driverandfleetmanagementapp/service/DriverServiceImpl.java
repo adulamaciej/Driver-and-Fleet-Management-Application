@@ -10,20 +10,17 @@ import org.example.driverandfleetmanagementapp.model.Driver;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.example.driverandfleetmanagementapp.repository.DriverRepository;
 import org.example.driverandfleetmanagementapp.repository.VehicleRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class DriverServiceImpl implements DriverService {
 
@@ -35,12 +32,8 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<DriverDto> getAllDrivers(int page, int size) {
-        log.info("Getting drivers with pagination");
-        log.debug("Getting drivers with pagination - page: {}, size: {}, method=getAllDrivers", page, size);
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Driver> driversPage = driverRepository.findAll(pageable);
-        return driversPage.map(driverMapper::toDto);
+    public Page<DriverDto> getAllDrivers(Pageable pageable) {
+        return driverRepository.findAll(pageable).map(driverMapper::toDto);
     }
 
 
@@ -49,8 +42,6 @@ public class DriverServiceImpl implements DriverService {
     @Transactional(readOnly = true)
     @Cacheable(value = "drivers", key = "'driver:' + #id")
     public DriverDto getDriverById(Integer id) {
-        log.info("Getting driver by id");
-        log.debug("Getting driver by ID: {}, method=getDriverById", id);
 
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
@@ -61,8 +52,6 @@ public class DriverServiceImpl implements DriverService {
     @Transactional(readOnly = true)
     @Cacheable(value = "drivers", key = "'license:' + #licenseNumber")
     public DriverDto getDriverByLicenseNumber(String licenseNumber) {
-        log.info("Getting driver by license number");
-        log.debug("Getting driver by license number: {}, method=getDriverByLicenseNumber", licenseNumber);
         Driver driver = driverRepository.findByLicenseNumber(licenseNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with license number " + licenseNumber + " not found"));
         return driverMapper.toDto(driver);
@@ -70,40 +59,27 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<DriverDto> getDriversByStatus(Driver.DriverStatus status, int page, int size) {
-        log.info("Getting drivers by status with pagination");
-        log.debug("Getting drivers by status: {} - page: {}, size: {}", status, page, size);
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<DriverDto> getDriversByStatus(Driver.DriverStatus status,Pageable pageable) {
         return driverRepository.findByStatus(status, pageable).map(driverMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "drivers", key = "'name:' + #firstName + ':' + #lastName + ':page' + #page + ':size' + #size")
-    public Page<DriverDto> getDriversByName(String firstName, String lastName, int page, int size) {
-        log.info("Getting drivers by name with pagination");
-        log.debug("Getting drivers by name: {} {}, page: {}, size: {}", firstName, lastName, page, size);
-        Pageable pageable = PageRequest.of(page, size);
+    @Cacheable(value = "drivers", key = "'name:' + #firstName + ':' + #lastName + ':page' + #pageable.pageNumber + ':size' + #pageable.pageSize")
+    public Page<DriverDto> getDriversByName(String firstName, String lastName, Pageable pageable) {
         return driverRepository.findByFirstNameAndLastName(firstName, lastName, pageable).map(driverMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "drivers", key = "'licenseType:' + #licenseType + ':page' + #page + ':size' + #size")
-    public Page<DriverDto> getDriversByLicenseType(Driver.LicenseType licenseType, int page, int size) {
-        log.info("Getting drivers by license type with pagination");
-        log.debug("Getting drivers by license type: {}, page: {}, size: {}", licenseType, page, size);
-        Pageable pageable = PageRequest.of(page, size);
+    @Cacheable(value = "drivers", key = "'licenseType:' + #licenseType + ':page' + #pageable.pageNumber + ':size' + #pageable.pageSize")
+    public Page<DriverDto> getDriversByLicenseType(Driver.LicenseType licenseType, Pageable pageable) {
         return driverRepository.findByLicenseType(licenseType, pageable).map(driverMapper::toDto);
     }
 
 
-
-
     @Override
     public DriverDto createDriver(DriverDto driverDto) {
-        log.info("Creating new driver");
-        log.debug("Creating new driver: {}, method=createDriver", driverDto);
         if (driverRepository.findByLicenseNumber(driverDto.getLicenseNumber()).isPresent()) {
             throw new ResourceConflictException("Driver with license number " + driverDto.getLicenseNumber() + " already exists");
         }
@@ -120,8 +96,6 @@ public class DriverServiceImpl implements DriverService {
             @CacheEvict(value = "drivers", key = "'licenseType:' + #driverDto.licenseType")
     })
     public DriverDto updateDriver(Integer id, DriverDto driverDto) {
-        log.info("Updating driver with ID");
-        log.debug("Updating driver with ID: {}, method=updateDriver", id);
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
         driverRepository.findByLicenseNumber(driverDto.getLicenseNumber())
@@ -142,8 +116,6 @@ public class DriverServiceImpl implements DriverService {
             @CacheEvict(value = "drivers", key = "'licenseType:' + #result.licenseType")
     })
     public DriverDto updateDriverStatus(Integer id, Driver.DriverStatus status) {
-        log.info("Updating status for driver");
-        log.debug("Updating status for driver with ID: {} to {}, method=updateDriverStatus", id, status);
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
 
@@ -158,8 +130,6 @@ public class DriverServiceImpl implements DriverService {
     @Override
     @CacheEvict(value = "drivers", key = "'driver:' + #id")
     public void deleteDriver(Integer id) {
-        log.info("Deleting driver with ID");
-        log.debug("Deleting driver with ID: {}, method=deleteDriver", id);
 
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
@@ -177,8 +147,6 @@ public class DriverServiceImpl implements DriverService {
             @CacheEvict(value = "vehicles", key = "'driver:' + #driverId")
     })
     public DriverDto assignVehicleToDriver(Integer driverId, Integer vehicleId) {
-        log.info("Assigning vehicle to a driver by their id");
-        log.debug("Assigning vehicle ID: {} to driver ID: {}, method=assignVehicleToDriver", vehicleId, driverId);
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + driverId + " not found"));
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
@@ -219,8 +187,6 @@ public class DriverServiceImpl implements DriverService {
             @CacheEvict(value = "vehicles", key = "'driver:' + #driverId")
     })
     public DriverDto removeVehicleFromDriver(Integer driverId, Integer vehicleId) {
-        log.info("Removing vehicle from driver");
-        log.debug("Removing vehicle ID: {} from driver ID: {}, method=removeVehicleFromDriver", vehicleId, driverId);
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + driverId + " not found"));
         Vehicle vehicle = vehicleRepository.findById(vehicleId)

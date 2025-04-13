@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -29,20 +30,29 @@ class NotificationControllerTest {
 
 
     @Test
-    void sendInspectionReminders_WhenVehiclesExist_ShouldReturnAcceptedResponse() {
-        Map<String, Object> mockResponse = Map.of("message", "Processing 2 inspection reminder notifications",
-                "vehicles", List.of(Map.of("id", 1), Map.of("id", 2)));
+    void sendInspectionReminders_WhenVehiclesExist_ShouldReturnAcceptedResponse(){
+        List<Map<String, Object>> vehicles = List.of(
+                Map.of("id", 1, "licensePlate", "ABC123"),
+                Map.of("id", 2, "licensePlate", "XYZ456")
+        );
+
+        Map<String, Object> mockResponse = Map.of(
+                "message", "Processing 2 inspection reminder notifications",
+                "vehicles", vehicles
+        );
+
 
         when(notificationService.processInspectionReminders(30)).thenReturn(mockResponse);
 
         ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(30);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-        assertThat(response.getBody()).isEqualTo(mockResponse);
+        assertThat(Objects.requireNonNull(response.getBody()).get("vehicles")).asList().hasSize(2);
+        assertThat(response.getBody().get("message")).isEqualTo("Processing 2 inspection reminder notifications");
     }
 
     @Test
-    void sendInspectionReminders_WhenNoVehicles_ShouldReturnAcceptedResponse() {
+    void sendInspectionReminders_WhenNoVehicles_ShouldReturnAcceptedResponse(){
         Map<String, Object> mockResponse = Map.of("message", "No vehicles with upcoming inspections found");
 
         when(notificationService.processInspectionReminders(30)).thenReturn(mockResponse);
@@ -51,5 +61,6 @@ class NotificationControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(response.getBody()).isEqualTo(mockResponse);
+        assertThat(Objects.requireNonNull(response.getBody()).get("message")).isEqualTo("No vehicles with upcoming inspections found");
     }
 }

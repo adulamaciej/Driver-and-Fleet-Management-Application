@@ -8,9 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.exception.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.exception.ResourceConflictException;
@@ -93,7 +91,8 @@ class VehicleServiceImplTest {
         when(vehicleRepository.findAll(any(Pageable.class))).thenReturn(vehiclePage);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        Page<VehicleDto> result = vehicleService.getAllVehicles(0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<VehicleDto> result = vehicleService.getAllVehicles(pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);
@@ -142,7 +141,8 @@ class VehicleServiceImplTest {
                 .thenReturn(vehiclePage);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        Page<VehicleDto> result = vehicleService.getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, 0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<VehicleDto> result = vehicleService.getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);
@@ -155,7 +155,8 @@ class VehicleServiceImplTest {
                 .thenReturn(vehiclePage);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        Page<VehicleDto> result = vehicleService.getVehiclesByBrandAndModel("Toyota", "Corolla", 0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<VehicleDto> result = vehicleService.getVehiclesByBrandAndModel("Toyota", "Corolla", pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);
@@ -168,7 +169,8 @@ class VehicleServiceImplTest {
                 .thenReturn(vehiclePage);
         when(vehicleMapper.toDto(vehicle)).thenReturn(vehicleDto);
 
-        Page<VehicleDto> result = vehicleService.getVehiclesByType(Vehicle.VehicleType.CAR, 0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<VehicleDto> result = vehicleService.getVehiclesByType(Vehicle.VehicleType.CAR, pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst()).isEqualTo(vehicleDto);

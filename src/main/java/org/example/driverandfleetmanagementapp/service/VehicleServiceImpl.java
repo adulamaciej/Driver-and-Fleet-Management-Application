@@ -10,6 +10,7 @@ import org.example.driverandfleetmanagementapp.model.Driver;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.example.driverandfleetmanagementapp.repository.DriverRepository;
 import org.example.driverandfleetmanagementapp.repository.VehicleRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -19,8 +20,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 
 
@@ -38,12 +37,11 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<VehicleDto> getAllVehicles(int page, int size) {
+    public Page<VehicleDto> getAllVehicles(Pageable pageable) {
         log.info("Getting all vehicles");
-        log.debug("Getting all vehicles with pagination - page: {}, size: {}, method=getAllVehicles", page, size);
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Vehicle> vehiclesPage = vehicleRepository.findAll(pageable);
-        return vehiclesPage.map(vehicleMapper::toDto);
+        log.debug("Getting all vehicles with pagination - page: {}, size: {}, method=getAllVehicles",
+                pageable.getPageNumber(), pageable.getPageSize());
+        return vehicleRepository.findAll(pageable).map(vehicleMapper::toDto);
     }
 
     @Override
@@ -70,31 +68,31 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<VehicleDto> getVehiclesByStatus(Vehicle.VehicleStatus status, int page, int size) {
+    public Page<VehicleDto> getVehiclesByStatus(Vehicle.VehicleStatus status, Pageable pageable) {
         log.info("Getting vehicles by status with pagination");
-        log.debug("Getting vehicles by status: {} - page: {}, size: {}", status, page, size);
-        Pageable pageable = PageRequest.of(page, size);
+        log.debug("Getting vehicles by status: {} - page: {}, size: {}",
+                status, pageable.getPageNumber(), pageable.getPageSize());
         return vehicleRepository.findByStatus(status, pageable).map(vehicleMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "vehicles", key = "'brandAndModel:' + #brand + ':' + #model + ':page' + #page + ':size' + #size")
-    public Page<VehicleDto> getVehiclesByBrandAndModel(String brand, String model, int page, int size) {
+    @Cacheable(value = "vehicles", key = "'brandAndModel:' + #brand + ':' + #model + ':page' + #pageable.pageNumber + ':size' + #pageable.pageSize")
+    public Page<VehicleDto> getVehiclesByBrandAndModel(String brand, String model, Pageable pageable) {
         log.info("Getting vehicles by brand and model with pagination");
-        log.debug("Getting vehicles by brand: {} and model: {}, page: {}, size: {}", brand, model, page, size);
-        Pageable pageable = PageRequest.of(page, size);
+        log.debug("Getting vehicles by brand: {} and model: {}, page: {}, size: {}",
+                brand, model, pageable.getPageNumber(), pageable.getPageSize());
         return vehicleRepository.findByBrandAndModel(brand, model, pageable).map(vehicleMapper::toDto);
     }
 
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "vehicles", key = "'type:' + #type + ':page' + #page + ':size' + #size")
-    public Page<VehicleDto> getVehiclesByType(Vehicle.VehicleType type, int page, int size) {
+    @Cacheable(value = "vehicles", key = "'type:' + #type + ':page' + #pageable.pageNumber + ':size' + #pageable.pageSize")
+    public Page<VehicleDto> getVehiclesByType(Vehicle.VehicleType type, Pageable pageable) {
         log.info("Getting vehicles by type with pagination");
-        log.debug("Getting vehicles by type: {}, page: {}, size: {}", type, page, size);
-        Pageable pageable = PageRequest.of(page, size);
+        log.debug("Getting vehicles by type: {}, page: {}, size: {}",
+                type, pageable.getPageNumber(), pageable.getPageSize());
         return vehicleRepository.findByType(type, pageable).map(vehicleMapper::toDto);
     }
 

@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -67,13 +68,13 @@ class VehicleControllerTest {
 
     @Test
     void getAllVehicles_ShouldReturnPageOfVehicles() {
-        when(vehicleService.getAllVehicles(anyInt(), anyInt())).thenReturn(vehiclePage);
+        when(vehicleService.getAllVehicles( any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.getAllVehicles(0, 10);
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.getAllVehicles(0, 10,"id");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
-        verify(vehicleService).getAllVehicles(0, 10);
+        verify(vehicleService).getAllVehicles( any(Pageable.class));
     }
 
     @Test
@@ -100,35 +101,35 @@ class VehicleControllerTest {
 
     @Test
     void getVehiclesByStatus_ShouldReturnVehicles() {
-        when(vehicleService.getVehiclesByStatus(any(Vehicle.VehicleStatus.class), anyInt(), anyInt())).thenReturn(vehiclePage);
+        when(vehicleService.getVehiclesByStatus(any(Vehicle.VehicleStatus.class),any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, 0, 10);
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, 0, 10,"id");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
-        verify(vehicleService).getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, 0, 10);
+        verify(vehicleService).getVehiclesByStatus(any(Vehicle.VehicleStatus.class), any(Pageable.class));
     }
 
     @Test
     void searchVehiclesByBrandAndModel_ShouldReturnVehicles() {
-        when(vehicleService.getVehiclesByBrandAndModel(anyString(), anyString(), anyInt(), anyInt())).thenReturn(vehiclePage);
+        when(vehicleService.getVehiclesByBrandAndModel(anyString(), anyString(),any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.searchVehiclesByBrandAndModel("Toyota", "Corolla", 0, 10);
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.searchVehiclesByBrandAndModel("Toyota", "Corolla", 0, 10,"id");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
-        verify(vehicleService).getVehiclesByBrandAndModel("Toyota", "Corolla", 0, 10);
+        verify(vehicleService).getVehiclesByBrandAndModel(anyString(), anyString(), any(Pageable.class));
     }
 
     @Test
     void getVehiclesByType_ShouldReturnVehicles() {
-        when(vehicleService.getVehiclesByType(any(Vehicle.VehicleType.class), anyInt(), anyInt())).thenReturn(vehiclePage);
+        when(vehicleService.getVehiclesByType(any(Vehicle.VehicleType.class),any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByType(Vehicle.VehicleType.CAR, 0, 10);
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByType(Vehicle.VehicleType.CAR, 0, 10,"id");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
-        verify(vehicleService).getVehiclesByType(Vehicle.VehicleType.CAR, 0, 10);
+        verify(vehicleService).getVehiclesByType(any(Vehicle.VehicleType.class), any(Pageable.class));
     }
 
     @Test
