@@ -17,6 +17,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final VehicleService vehicleService;
 
 
+    @Override
     public Map<String, Object> processInspectionReminders(int days) {
 
             List<Vehicle> vehicles = vehicleService.getVehiclesWithUpcomingInspection(days);
@@ -47,6 +48,7 @@ public class NotificationServiceImpl implements NotificationService {
             return response;
     }
 
+    @Override
     @Async("taskExecutor")
     public CompletableFuture<Void> sendInspectionReminderNotification(Vehicle vehicle){
 

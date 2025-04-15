@@ -3,13 +3,14 @@ package org.example.driverandfleetmanagementapp.aop;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 
 @Aspect
 @Component
 @Slf4j
+@EnableAspectJAutoProxy
 public class LoggingAspect {
 
     @Pointcut("(execution(* org.example.driverandfleetmanagementapp.controller.*.*(..)) || " +

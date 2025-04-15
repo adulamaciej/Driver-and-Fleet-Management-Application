@@ -36,8 +36,6 @@ public class DriverServiceImpl implements DriverService {
         return driverRepository.findAll(pageable).map(driverMapper::toDto);
     }
 
-
-
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "drivers", key = "'driver:' + #id")
