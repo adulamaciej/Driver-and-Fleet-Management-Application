@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -58,7 +59,7 @@ class DriverControllerTest {
     void getAllDrivers_ShouldReturnPageOfDrivers() {
         when(driverService.getAllDrivers(any(Pageable.class))).thenReturn(driverPage);
 
-        ResponseEntity<Page<DriverDto>> response = driverController.getAllDrivers(0, 10,"id");
+        ResponseEntity<Page<DriverDto>> response = driverController.getAllDrivers(0, 10,"id", Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(driverPage);
@@ -67,7 +68,7 @@ class DriverControllerTest {
 
     @Test
     void getDriverById_ShouldReturnDriver() {
-        when(driverService.getDriverById(anyInt())).thenReturn(driverDto);
+        when(driverService.getDriverById(1)).thenReturn(driverDto);
 
         ResponseEntity<DriverDto> response = driverController.getDriverById(1);
 
@@ -78,7 +79,7 @@ class DriverControllerTest {
 
     @Test
     void getDriverByLicenseNumber_ShouldReturnDriver() {
-        when(driverService.getDriverByLicenseNumber(anyString())).thenReturn(driverDto);
+        when(driverService.getDriverByLicenseNumber("123456789")).thenReturn(driverDto);
 
         ResponseEntity<DriverDto> response = driverController.getDriverByLicenseNumber("123456789");
 
@@ -89,35 +90,54 @@ class DriverControllerTest {
 
     @Test
     void getDriversByStatus_ShouldReturnDrivers() {
-        when(driverService.getDriversByStatus(any(Driver.DriverStatus.class),  any(Pageable.class))).thenReturn(driverPage);
+        when(driverService.getDriversByStatus(eq(Driver.DriverStatus.ACTIVE),  any(Pageable.class))).thenReturn(driverPage);
 
-        ResponseEntity<Page<DriverDto>> response = driverController.getDriversByStatus(Driver.DriverStatus.ACTIVE, 0, 10,"id");
+        ResponseEntity<Page<DriverDto>> response = driverController.getDriversByStatus(Driver.DriverStatus.ACTIVE, 0, 10,"id",Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(driverPage);
-        verify(driverService).getDriversByStatus(any(Driver.DriverStatus.class), any(Pageable.class));
+        verify(driverService).getDriversByStatus(eq(Driver.DriverStatus.ACTIVE), any(Pageable.class));
     }
 
     @Test
     void searchDriversByName_ShouldReturnDrivers() {
-        when(driverService.getDriversByName(anyString(), anyString(), any(Pageable.class))).thenReturn(driverPage);
+        when(driverService.getDriversByName("John", "Doe")).thenReturn(List.of(driverDto));
 
-        ResponseEntity<Page<DriverDto>> response = driverController.searchDriversByName("John", "Doe", 0, 10,"id");
+        ResponseEntity<List<DriverDto>> response = driverController.searchDriversByName("John", "Doe");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(driverPage);
-        verify(driverService).getDriversByName(anyString(), anyString(), any(Pageable.class));    }
+        assertThat(response.getBody()).containsExactly(driverDto);
+        verify(driverService).getDriversByName("John","Doe");
+    }
 
     @Test
     void getDriversByLicenseType_ShouldReturnDrivers() {
-        when(driverService.getDriversByLicenseType(any(Driver.LicenseType.class),  any(Pageable.class))).thenReturn(driverPage);
-
-        ResponseEntity<Page<DriverDto>> response = driverController.getDriversByLicenseType(Driver.LicenseType.B, 0, 10,"id");
+        when(driverService.getDriversByLicenseType(eq(Driver.LicenseType.B), any(Pageable.class))).thenReturn(driverPage);
+        ResponseEntity<Page<DriverDto>> response = driverController.getDriversByLicenseType(Driver.LicenseType.B, 0, 10,"id",Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(driverPage);
-        verify(driverService).getDriversByLicenseType(any(Driver.LicenseType.class), any(Pageable.class));
+        verify(driverService).getDriversByLicenseType(eq(Driver.LicenseType.B), any(Pageable.class));
     }
+
+    @Test
+    void updateDriverStatus_ShouldReturnUpdatedDriver(){
+
+        DriverDto updatedDriverDto = driverDto.toBuilder()
+                .status(Driver.DriverStatus.SUSPENDED)
+                .build();
+
+        when(driverService.updateDriverStatus(1, Driver.DriverStatus.SUSPENDED)).thenReturn(updatedDriverDto);
+
+        ResponseEntity<DriverDto> response = driverController.updateDriverStatus(
+                1, Driver.DriverStatus.SUSPENDED);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(updatedDriverDto);
+
+        verify(driverService).updateDriverStatus(1, Driver.DriverStatus.SUSPENDED);
+    }
+
 
     @Test
     void createDriver_ShouldReturnCreatedDriver() {
@@ -132,18 +152,18 @@ class DriverControllerTest {
 
     @Test
     void updateDriver_ShouldReturnUpdatedDriver() {
-        when(driverService.updateDriver(anyInt(), any(DriverDto.class))).thenReturn(driverDto);
+        when(driverService.updateDriver(eq(1), any(DriverDto.class))).thenReturn(driverDto);
 
         ResponseEntity<DriverDto> response = driverController.updateDriver(1, driverDto);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(driverDto);
-        verify(driverService).updateDriver(1, driverDto);
+        verify(driverService).updateDriver(eq(1), eq(driverDto));
     }
 
     @Test
     void deleteDriver_ShouldReturnNoContent() {
-        doNothing().when(driverService).deleteDriver(anyInt());
+        doNothing().when(driverService).deleteDriver(1);
 
         ResponseEntity<Void> response = driverController.deleteDriver(1);
 
@@ -153,7 +173,7 @@ class DriverControllerTest {
 
     @Test
     void assignVehicleToDriver_ShouldReturnUpdatedDriver() {
-        when(driverService.assignVehicleToDriver(anyInt(), anyInt())).thenReturn(driverDto);
+        when(driverService.assignVehicleToDriver(1, 2)).thenReturn(driverDto);
 
         ResponseEntity<DriverDto> response = driverController.assignVehicleToDriver(1, 2);
 
@@ -164,7 +184,7 @@ class DriverControllerTest {
 
     @Test
     void removeVehicleFromDriver_ShouldReturnUpdatedDriver() {
-        when(driverService.removeVehicleFromDriver(anyInt(), anyInt())).thenReturn(driverDto);
+        when(driverService.removeVehicleFromDriver(1, 2)).thenReturn(driverDto);
 
         ResponseEntity<DriverDto> response = driverController.removeVehicleFromDriver(1, 2);
 

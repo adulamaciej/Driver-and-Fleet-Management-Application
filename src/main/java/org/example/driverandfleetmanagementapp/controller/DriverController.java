@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 
 @RestController
@@ -34,8 +35,9 @@ public class DriverController {
     public ResponseEntity<Page<DriverDto>> getAllDrivers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(driverService.getAllDrivers(PageRequest.of(page, size, Sort.by(sortBy).ascending())));
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(driverService.getAllDrivers(PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
     @GetMapping("/{id}")
@@ -67,22 +69,20 @@ public class DriverController {
             @PathVariable Driver.DriverStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(driverService.getDriversByStatus(status, PageRequest.of(page, size, Sort.by(sortBy).ascending())));
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(driverService.getDriversByStatus(status, PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search drivers by name", description = "Searches for drivers by first name and last name with pagination")
+    @Operation(summary = "Search drivers by name", description = "Searches for drivers by first name and last name")
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
-    @ApiResponse(responseCode = "400", description = "Invalid search parameters or pagination parameters")
-    public ResponseEntity<Page<DriverDto>> searchDriversByName(
+    @ApiResponse(responseCode = "400", description = "Invalid search parameters")
+    public ResponseEntity<List<DriverDto>> searchDriversByName(
             @RequestParam String firstName,
-            @RequestParam String lastName,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(driverService.getDriversByName(firstName, lastName, PageRequest.of(page, size, Sort.by(sortBy).ascending())));
+            @RequestParam String lastName) {
+        return ResponseEntity.ok(driverService.getDriversByName(firstName, lastName));
     }
 
     @GetMapping("/license-type/{licenseType}")
@@ -94,8 +94,9 @@ public class DriverController {
             @PathVariable Driver.LicenseType licenseType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType,  PageRequest.of(page, size, Sort.by(sortBy).ascending())));
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType,  PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
     @PatchMapping("/{id}/status")

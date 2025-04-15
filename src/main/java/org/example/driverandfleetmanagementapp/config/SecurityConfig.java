@@ -28,10 +28,11 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.realmName("Fleet Management API"))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/api-docs",
                                 "/api-docs/**",
-                                "/swagger-ui.html",
                                 "/webjars/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")

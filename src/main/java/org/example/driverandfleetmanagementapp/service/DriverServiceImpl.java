@@ -18,6 +18,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -63,9 +65,10 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "drivers", key = "'name:' + #firstName + ':' + #lastName + ':page' + #pageable.pageNumber + ':size' + #pageable.pageSize")
-    public Page<DriverDto> getDriversByName(String firstName, String lastName, Pageable pageable) {
-        return driverRepository.findByFirstNameAndLastName(firstName, lastName, pageable).map(driverMapper::toDto);
+    @Cacheable(value = "drivers", key = "'name:' + #firstName + ':' + #lastName")
+    public List<DriverDto> getDriversByName(String firstName, String lastName) {
+        List<Driver> drivers = driverRepository.findByFirstNameAndLastName(firstName, lastName);
+        return drivers.stream().map(driverMapper::toDto).toList();
     }
 
     @Override
@@ -99,7 +102,7 @@ public class DriverServiceImpl implements DriverService {
         driverRepository.findByLicenseNumber(driverDto.getLicenseNumber())
                 .filter(d -> !d.getId().equals(id))
                 .ifPresent(d -> {
-                    throw new ResourceConflictException("License number " + driverDto.getLicenseNumber() + " already in use");
+                    throw new ResourceConflictException("License number " + driverDto.getLicenseNumber() + " already in use" +d.getId());
                 });
         driverMapper.updateDriverFromDto(driverDto, driver);
         driver = driverRepository.save(driver);

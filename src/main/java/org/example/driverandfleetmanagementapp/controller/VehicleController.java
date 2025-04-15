@@ -36,8 +36,9 @@ public class VehicleController {
     public ResponseEntity<Page<VehicleDto>> getAllVehicles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(vehicleService.getAllVehicles(PageRequest.of(page, size, Sort.by(sortBy).ascending())));
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(vehicleService.getAllVehicles(PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
     @GetMapping("/{id}")
@@ -69,10 +70,10 @@ public class VehicleController {
             @PathVariable Vehicle.VehicleStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(vehicleService.getVehiclesByStatus(
-                status,
-                PageRequest.of(page, size, Sort.by(sortBy).ascending())
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByStatus(status,
+                PageRequest.of(page, size,Sort.by(sortDirection, sortBy))
         ));
     }
 
@@ -86,10 +87,10 @@ public class VehicleController {
             @RequestParam String model,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(vehicleService.getVehiclesByBrandAndModel(
-                brand, model,
-                PageRequest.of(page, size, Sort.by(sortBy).ascending())
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByBrandAndModel(brand, model,
+                PageRequest.of(page, size, Sort.by(sortDirection, sortBy))
         ));
     }
 
@@ -103,10 +104,10 @@ public class VehicleController {
             @PathVariable Vehicle.VehicleType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(vehicleService.getVehiclesByType(
-                type,
-                PageRequest.of(page, size, Sort.by(sortBy).ascending())
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(vehicleService.getVehiclesByType(type,
+                PageRequest.of(page, size, Sort.by(sortDirection, sortBy))
         ));
     }
 

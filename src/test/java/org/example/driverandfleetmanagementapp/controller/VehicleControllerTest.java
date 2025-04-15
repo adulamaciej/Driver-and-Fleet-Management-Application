@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -70,7 +71,7 @@ class VehicleControllerTest {
     void getAllVehicles_ShouldReturnPageOfVehicles() {
         when(vehicleService.getAllVehicles( any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.getAllVehicles(0, 10,"id");
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.getAllVehicles(0, 10,"id", Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
@@ -79,7 +80,7 @@ class VehicleControllerTest {
 
     @Test
     void getVehicleById_ShouldReturnVehicle() {
-        when(vehicleService.getVehicleById(anyInt())).thenReturn(vehicleDto);
+        when(vehicleService.getVehicleById(1)).thenReturn(vehicleDto);
 
         ResponseEntity<VehicleDto> response = vehicleController.getVehicleById(1);
 
@@ -90,7 +91,7 @@ class VehicleControllerTest {
 
     @Test
     void getVehicleByLicensePlate_ShouldReturnVehicle() {
-        when(vehicleService.getVehicleByLicensePlate(anyString())).thenReturn(vehicleDto);
+        when(vehicleService.getVehicleByLicensePlate("ABC12345")).thenReturn(vehicleDto);
 
         ResponseEntity<VehicleDto> response = vehicleController.getVehicleByLicensePlate("ABC12345");
 
@@ -101,31 +102,35 @@ class VehicleControllerTest {
 
     @Test
     void getVehiclesByStatus_ShouldReturnVehicles() {
-        when(vehicleService.getVehiclesByStatus(any(Vehicle.VehicleStatus.class),any(Pageable.class))).thenReturn(vehiclePage);
+        when(vehicleService.getVehiclesByStatus(eq(Vehicle.VehicleStatus.AVAILABLE),any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, 0, 10,"id");
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByStatus(Vehicle.VehicleStatus.AVAILABLE, 0, 10,"id",Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
-        verify(vehicleService).getVehiclesByStatus(any(Vehicle.VehicleStatus.class), any(Pageable.class));
+        verify(vehicleService).getVehiclesByStatus(eq(Vehicle.VehicleStatus.AVAILABLE), any(Pageable.class));
+
     }
 
     @Test
     void searchVehiclesByBrandAndModel_ShouldReturnVehicles() {
-        when(vehicleService.getVehiclesByBrandAndModel(anyString(), anyString(),any(Pageable.class))).thenReturn(vehiclePage);
+        when(vehicleService.getVehiclesByBrandAndModel(eq("Toyota"),eq("Corolla"),any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.searchVehiclesByBrandAndModel("Toyota", "Corolla", 0, 10,"id");
+
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.searchVehiclesByBrandAndModel(
+                "Toyota", "Corolla", 0, 10, "id", Sort.Direction.ASC
+        );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
-        verify(vehicleService).getVehiclesByBrandAndModel(anyString(), anyString(), any(Pageable.class));
+        verify(vehicleService).getVehiclesByBrandAndModel(eq("Toyota"), eq("Corolla"), any(Pageable.class));
     }
 
     @Test
     void getVehiclesByType_ShouldReturnVehicles() {
         when(vehicleService.getVehiclesByType(any(Vehicle.VehicleType.class),any(Pageable.class))).thenReturn(vehiclePage);
 
-        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByType(Vehicle.VehicleType.CAR, 0, 10,"id");
+        ResponseEntity<Page<VehicleDto>> response = vehicleController.getVehiclesByType(Vehicle.VehicleType.CAR, 0, 10,"id",Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehiclePage);
@@ -134,7 +139,7 @@ class VehicleControllerTest {
 
     @Test
     void getVehiclesByDriverId_ShouldReturnVehicles() {
-        when(vehicleService.getVehiclesByDriverId(anyInt())).thenReturn(vehicleList);
+        when(vehicleService.getVehiclesByDriverId(1)).thenReturn(vehicleList);
 
         ResponseEntity<List<VehicleDto>> response = vehicleController.getVehiclesByDriverId(1);
 
@@ -156,7 +161,7 @@ class VehicleControllerTest {
 
     @Test
     void updateVehicle_ShouldReturnUpdatedVehicle() {
-        when(vehicleService.updateVehicle(anyInt(), any(VehicleDto.class))).thenReturn(vehicleDto);
+        when(vehicleService.updateVehicle(eq(1), any(VehicleDto.class))).thenReturn(vehicleDto);
 
         ResponseEntity<VehicleDto> response = vehicleController.updateVehicle(1, vehicleDto);
 
@@ -167,7 +172,7 @@ class VehicleControllerTest {
 
     @Test
     void deleteVehicle_ShouldReturnNoContent() {
-        doNothing().when(vehicleService).deleteVehicle(anyInt());
+        doNothing().when(vehicleService).deleteVehicle(1);
         ResponseEntity<Void> response = vehicleController.deleteVehicle(1);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -176,7 +181,7 @@ class VehicleControllerTest {
 
     @Test
     void assignDriverToVehicle_ShouldReturnUpdatedVehicle() {
-        when(vehicleService.assignDriverToVehicle(anyInt(), anyInt())).thenReturn(vehicleDto);
+        when(vehicleService.assignDriverToVehicle(1, 1)).thenReturn(vehicleDto);
 
         ResponseEntity<VehicleDto> response = vehicleController.assignDriverToVehicle(1, 1);
 
@@ -187,7 +192,7 @@ class VehicleControllerTest {
 
     @Test
     void removeDriverFromVehicle_ShouldReturnUpdatedVehicle() {
-        when(vehicleService.removeDriverFromVehicle(anyInt())).thenReturn(vehicleDto);
+        when(vehicleService.removeDriverFromVehicle(1)).thenReturn(vehicleDto);
 
         ResponseEntity<VehicleDto> response = vehicleController.removeDriverFromVehicle(1);
 
@@ -198,18 +203,18 @@ class VehicleControllerTest {
 
     @Test
     void updateVehicleMileage_ShouldReturnUpdatedVehicle() {
-        when(vehicleService.updateVehicleMileage(anyInt(), anyDouble())).thenReturn(vehicleDto);
+        when(vehicleService.updateVehicleMileage(1, 2000.0)).thenReturn(vehicleDto);
 
-        ResponseEntity<VehicleDto> response = vehicleController.updateVehicleMileage(1, 20000.0);
+        ResponseEntity<VehicleDto> response = vehicleController.updateVehicleMileage(1, 2000.0);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(vehicleDto);
-        verify(vehicleService).updateVehicleMileage(1, 20000.0);
+        verify(vehicleService).updateVehicleMileage(1, 2000.0);
     }
 
     @Test
     void updateVehicleStatus_ShouldReturnUpdatedVehicle() {
-        when(vehicleService.updateVehicleStatus(anyInt(), any(Vehicle.VehicleStatus.class))).thenReturn(vehicleDto);
+        when(vehicleService.updateVehicleStatus(1, Vehicle.VehicleStatus.IN_SERVICE)).thenReturn(vehicleDto);
 
         ResponseEntity<VehicleDto> response = vehicleController.updateVehicleStatus(1, Vehicle.VehicleStatus.IN_SERVICE);
 

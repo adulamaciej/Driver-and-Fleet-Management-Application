@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,13 +81,12 @@ public class DriverRepositoryTest {
 
     @Test
     void findByFirstNameAndLastName_ShouldReturnDrivers() {
-        Pageable pageable = PageRequest.of(0, 10);
 
-        Page<Driver> drivers = driverRepository.findByFirstNameAndLastName("Jan", "Kowalski", pageable);
+        List<Driver> drivers = driverRepository.findByFirstNameAndLastName("Jan", "Kowalski");
 
-        assertThat(drivers.getContent()).isNotEmpty();
-        assertThat(drivers.getContent().getFirst().getFirstName()).isEqualTo("Jan");
-        assertThat(drivers.getContent().getFirst().getLastName()).isEqualTo("Kowalski");
+        assertThat(drivers).isNotEmpty();
+        assertThat(drivers.getFirst().getFirstName()).isEqualTo("Jan");
+        assertThat(drivers.getFirst().getLastName()).isEqualTo("Kowalski");
     }
 
     @Test
