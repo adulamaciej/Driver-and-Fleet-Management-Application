@@ -43,7 +43,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **Spring Data JPA**: Data access using JPA with Hibernate
 - **Spring Security**: Authentication with role-based access control
 - **Caching**: Caffeine cache for improved performance
-- **Logging**: SLF4J with Logback for logging
+- **AOP (Logging)**: SLF4 for logging in Aspect
 - **Validation**: Jakarta Bean Validation for input validation
 - **Mapping**: MapStruct for efficient object mapping
 - **Documentation**: Swagger/OpenAPI for API documentation
