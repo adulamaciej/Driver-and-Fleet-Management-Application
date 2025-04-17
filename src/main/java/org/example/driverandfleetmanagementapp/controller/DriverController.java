@@ -107,7 +107,7 @@ public class DriverController {
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<DriverDto> updateDriverStatus(
             @PathVariable Integer id,
-            @RequestParam Driver.DriverStatus status) {
+            @RequestBody Driver.DriverStatus status) {
         return ResponseEntity.ok(driverService.updateDriverStatus(id, status));
     }
 

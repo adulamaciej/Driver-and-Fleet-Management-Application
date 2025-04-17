@@ -188,7 +188,7 @@ public class VehicleController {
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> updateVehicleMileage(
             @PathVariable Integer id,
-            @RequestParam Double mileage) {
+            @RequestBody Double mileage) {
         return ResponseEntity.ok(vehicleService.updateVehicleMileage(id, mileage));
     }
 
@@ -200,7 +200,7 @@ public class VehicleController {
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     public ResponseEntity<VehicleDto> updateVehicleStatus(
             @PathVariable Integer id,
-            @RequestParam Vehicle.VehicleStatus status) {
+            @RequestBody Vehicle.VehicleStatus status) {
         return ResponseEntity.ok(vehicleService.updateVehicleStatus(id, status));
     }
 }

@@ -131,16 +131,15 @@ public class DriverServiceImpl implements DriverService {
     @Override
     @CacheEvict(value = "drivers", key = "'driver:' + #id")
     public void deleteDriver(Integer id) {
-
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
 
         if (vehicleRepository.existsByDriverId(id)) {
             throw new BusinessLogicException("Cannot delete driver with assigned vehicles");
         }
-
         driverRepository.delete(driver);
     }
+
     @Override
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
@@ -195,6 +194,7 @@ public class DriverServiceImpl implements DriverService {
         if (vehicle.getDriver() == null || !vehicle.getDriver().getId().equals(driverId)) {
             throw new BusinessLogicException("Vehicle is not assigned to this driver");
         }
+
         vehicle.setDriver(null);
         driver.getVehicles().remove(vehicle);
         driverRepository.save(driver);

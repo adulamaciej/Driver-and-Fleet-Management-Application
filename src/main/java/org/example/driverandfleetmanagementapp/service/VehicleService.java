@@ -4,7 +4,6 @@ import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 
 public interface VehicleService {

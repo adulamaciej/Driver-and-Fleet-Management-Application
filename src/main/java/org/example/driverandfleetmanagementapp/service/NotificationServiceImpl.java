@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> processInspectionReminders(int days) {
 
             List<Vehicle> vehicles = vehicleService.getVehiclesWithUpcomingInspection(days);
@@ -50,6 +54,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async("taskExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<Void> sendInspectionReminderNotification(Vehicle vehicle){
 
         try {
