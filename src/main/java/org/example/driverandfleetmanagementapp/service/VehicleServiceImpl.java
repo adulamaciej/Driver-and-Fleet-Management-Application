@@ -122,7 +122,7 @@ public class VehicleServiceImpl implements VehicleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle with ID " + id + " not found"));
         vehicleRepository.findByLicensePlate(vehicleDto.getLicensePlate())
                 .filter(v -> !v.getId().equals(id))
-                .ifPresent(v -> {
+                .ifPresent(__ -> {
                     throw new ResourceConflictException("License plate " + vehicleDto.getLicensePlate() + " already in use");
                 });
 
@@ -136,7 +136,6 @@ public class VehicleServiceImpl implements VehicleService {
         } else {
             vehicle.setDriver(null);
         }
-        vehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toDto(vehicle);
     }
 
@@ -154,7 +153,6 @@ public class VehicleServiceImpl implements VehicleService {
             Driver driver = vehicle.getDriver();
             driver.getVehicles().remove(vehicle);
             vehicle.setDriver(null);
-            driverRepository.save(driver);
         }
 
         vehicleRepository.delete(vehicle);
@@ -197,7 +195,6 @@ public class VehicleServiceImpl implements VehicleService {
         }
 
         vehicle.setDriver(driver);
-        vehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toDto(vehicle);
     }
 
@@ -212,10 +209,8 @@ public class VehicleServiceImpl implements VehicleService {
         }
         Integer driverId = vehicle.getDriver().getId();
         vehicle.setDriver(null);
-        vehicle = vehicleRepository.save(vehicle);
 
         evictDriverCache(driverId);
-
         return vehicleMapper.toDto(vehicle);
     }
 
@@ -237,7 +232,6 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle with ID " + id + " not found"));
         vehicle.setMileage(mileage);
-        vehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toDto(vehicle);
     }
 
@@ -247,7 +241,6 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle with ID " + id + " not found"));
         vehicle.setStatus(status);
-        vehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toDto(vehicle);
     }
 

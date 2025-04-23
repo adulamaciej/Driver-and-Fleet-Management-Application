@@ -17,7 +17,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-
 import java.util.List;
 
 
@@ -105,7 +104,6 @@ public class DriverServiceImpl implements DriverService {
                     throw new ResourceConflictException("License number " + driverDto.getLicenseNumber() + " already in use" +d.getId());
                 });
         driverMapper.updateDriverFromDto(driverDto, driver);
-        driver = driverRepository.save(driver);
         return driverMapper.toDto(driver);
     }
 
@@ -124,7 +122,6 @@ public class DriverServiceImpl implements DriverService {
             throw new BusinessLogicException("Cannot suspend driver with assigned vehicles. Please remove vehicle assignments first.");
         }
         driver.setStatus(status);
-        driver = driverRepository.save(driver);
         return driverMapper.toDto(driver);
     }
 
@@ -175,7 +172,6 @@ public class DriverServiceImpl implements DriverService {
 
         vehicle.setDriver(driver);
         driver.getVehicles().add(vehicle);
-        driverRepository.save(driver);
         return driverMapper.toDto(driver);
     }
 
@@ -197,7 +193,6 @@ public class DriverServiceImpl implements DriverService {
 
         vehicle.setDriver(null);
         driver.getVehicles().remove(vehicle);
-        driverRepository.save(driver);
         return driverMapper.toDto(driver);
     }
 
