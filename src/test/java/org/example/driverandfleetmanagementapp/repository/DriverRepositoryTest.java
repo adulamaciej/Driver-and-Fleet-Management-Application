@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +24,7 @@ public class DriverRepositoryTest {
     private DriverRepository driverRepository;
 
     private Driver.DriverBuilder defaultDriverBuilder;
+    private Driver testDriver;
 
     @BeforeEach
     void setUp() {
@@ -38,63 +38,60 @@ public class DriverRepositoryTest {
                 .email("jankowalski@example.com")
                 .status(Driver.DriverStatus.ACTIVE);
 
+        testDriver = defaultDriverBuilder.build();
+        driverRepository.save(testDriver);
 
     }
 
     @Test
     void findByLicenseNumber_ShouldReturnDriver() {
-        Driver driver = defaultDriverBuilder.build();
-        driverRepository.save(driver);
-
-        String savedLicenseNumber = driver.getLicenseNumber();
-
-        Optional<Driver> driverOptional = driverRepository.findByLicenseNumber(savedLicenseNumber);
+        Optional<Driver> driverOptional = driverRepository.findByLicenseNumber(testDriver.getLicenseNumber());
 
         assertThat(driverOptional).isPresent();
-        assertThat(driverOptional.get().getLicenseNumber()).isEqualTo("543832578");
+        assertThat(driverOptional.get().getLicenseNumber()).isEqualTo(testDriver.getLicenseNumber());
+        assertThat(driverOptional.get()).isEqualTo(testDriver);
     }
 
     @Test
     void findById_ShouldReturnDriversId() {
-        Driver driver = defaultDriverBuilder.build();
-        driverRepository.save(driver);
+        Optional<Driver> driverOptional = driverRepository.findById(testDriver.getId());
 
-        Integer savedId = driver.getId();
-
-        Optional<Driver> driverOptional = driverRepository.findById(savedId);
 
         assertThat(driverOptional).isPresent();
-        assertThat(driverOptional.get().getId()).isEqualTo(savedId);
+        assertThat(driverOptional.get().getId()).isEqualTo(testDriver.getId());
     }
 
     @Test
     void findByStatus_ShouldReturnDriversWithStatus() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 20);
 
-        Page<Driver> drivers = driverRepository.findByStatus(Driver.DriverStatus.ACTIVE, pageable);
+        Page<Driver> drivers = driverRepository.findByStatus(testDriver.getStatus(), pageable);
 
         assertThat(drivers.getContent()).isNotEmpty();
-        assertThat(drivers.getContent().getFirst().getStatus()).isEqualTo(Driver.DriverStatus.ACTIVE);
+        assertThat(drivers.getContent()).contains(testDriver);
     }
 
     @Test
     void findByFirstNameAndLastName_ShouldReturnDrivers() {
-
-        List<Driver> drivers = driverRepository.findByFirstNameAndLastName("Jan", "Kowalski");
+        List<Driver> drivers = driverRepository.findByFirstNameAndLastName(
+                testDriver.getFirstName(), testDriver.getLastName());
 
         assertThat(drivers).isNotEmpty();
-        assertThat(drivers.getFirst().getFirstName()).isEqualTo("Jan");
-        assertThat(drivers.getFirst().getLastName()).isEqualTo("Kowalski");
+        assertThat(drivers.getFirst().getFirstName()).isEqualTo(testDriver.getFirstName());
+        assertThat(drivers.getFirst().getLastName()).isEqualTo(testDriver.getLastName());
+        assertThat(drivers).contains(testDriver);
     }
 
     @Test
     void findByLicenseType_ShouldReturnDrivers() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 20);
 
-        Page<Driver> drivers = driverRepository.findByLicenseType(Driver.LicenseType.B, pageable);
+        Page<Driver> drivers = driverRepository.findByLicenseType(testDriver.getLicenseType(), pageable);
 
         assertThat(drivers.getContent()).isNotEmpty();
         assertThat(drivers.getContent().getFirst().getLicenseType()).isEqualTo(Driver.LicenseType.B);
+        assertThat(drivers).contains(testDriver);
+
     }
 
     @Test
@@ -107,4 +104,6 @@ public class DriverRepositoryTest {
         assertThat(allDrivers.getContent()).isNotEmpty();
         assertThat(allDrivers.getContent().size()).isLessThanOrEqualTo(10);
     }
+
+
 }

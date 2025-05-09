@@ -1,12 +1,14 @@
 package org.example.driverandfleetmanagementapp.controller;
 
 
-import org.example.driverandfleetmanagementapp.service.NotificationService;
+import org.example.driverandfleetmanagementapp.service.notification.NotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -41,10 +43,12 @@ class NotificationControllerTest {
                 "vehicles", vehicles
         );
 
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
 
-        when(notificationService.processInspectionReminders(30)).thenReturn(mockResponse);
+        when(notificationService.processInspectionReminders(30, pageRequest)).thenReturn(mockResponse);
 
-        ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(30);
+        ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(
+                30, 0, 10, "id", Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(Objects.requireNonNull(response.getBody()).get("vehicles")).asList().hasSize(2);
@@ -55,12 +59,16 @@ class NotificationControllerTest {
     void sendInspectionReminders_WhenNoVehicles_ShouldReturnAcceptedResponse(){
         Map<String, Object> mockResponse = Map.of("message", "No vehicles with upcoming inspections found");
 
-        when(notificationService.processInspectionReminders(30)).thenReturn(mockResponse);
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
 
-        ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(30);
+        when(notificationService.processInspectionReminders(30, pageRequest)).thenReturn(mockResponse);
+
+        ResponseEntity<Map<String, Object>> response = notificationController.sendInspectionReminders(30, 0, 10, "id", Sort.Direction.ASC);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(response.getBody()).isEqualTo(mockResponse);
         assertThat(Objects.requireNonNull(response.getBody()).get("message")).isEqualTo("No vehicles with upcoming inspections found");
     }
+
+
 }

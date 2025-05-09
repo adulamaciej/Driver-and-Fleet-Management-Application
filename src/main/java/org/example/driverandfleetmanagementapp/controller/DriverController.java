@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
 import org.example.driverandfleetmanagementapp.model.Driver;
-import org.example.driverandfleetmanagementapp.service.DriverService;
+import org.example.driverandfleetmanagementapp.service.driver.DriverService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,7 +46,7 @@ public class DriverController {
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<DriverDto> getDriverById(
-            @PathVariable Integer id) {
+            @PathVariable Long id) {
         return ResponseEntity.ok(driverService.getDriverById(id));
     }
 
@@ -79,10 +79,10 @@ public class DriverController {
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "400", description = "Invalid search parameters")
-    public ResponseEntity<List<DriverDto>> searchDriversByName(
+    public ResponseEntity<List<DriverDto>> getDriversByFirstAndLastName(
             @RequestParam String firstName,
             @RequestParam String lastName) {
-        return ResponseEntity.ok(driverService.getDriversByName(firstName, lastName));
+        return ResponseEntity.ok(driverService.getDriversByFirstAndLastName(firstName, lastName));
     }
 
     @GetMapping("/license-type/{licenseType}")
@@ -99,6 +99,15 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType,  PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
+    @GetMapping("/vehicle/{vehicleId}")
+    @Operation(summary = "Get driver by vehicle ID", description = "Retrieves the driver assigned to a specific vehicle")
+    @ApiResponse(responseCode = "200", description = "Driver retrieved successfully")
+    @ApiResponse(responseCode = "400", description = "Vehicle has no assigned driver")
+    @ApiResponse(responseCode = "404", description = "Vehicle not found")
+    public ResponseEntity<DriverDto> getDriverByVehicleId(@PathVariable Long vehicleId) {
+        return ResponseEntity.ok(driverService.getDriverByVehicleId(vehicleId));
+    }
+
     @PatchMapping("/{id}/status")
     @Operation(summary = "Update driver status", description = "Updates the status of a driver")
     @ApiResponse(responseCode = "200", description = "Status updated successfully")
@@ -106,7 +115,7 @@ public class DriverController {
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<DriverDto> updateDriverStatus(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestBody Driver.DriverStatus status) {
         return ResponseEntity.ok(driverService.updateDriverStatus(id, status));
     }
@@ -129,7 +138,7 @@ public class DriverController {
     @ApiResponse(responseCode = "404", description = "Driver not found")
     @ApiResponse(responseCode = "409", description = "License number conflict")
     public ResponseEntity<DriverDto> updateDriver(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @Valid @RequestBody DriverDto driverDto) {
         return ResponseEntity.ok(driverService.updateDriver(id, driverDto));
     }
@@ -141,32 +150,9 @@ public class DriverController {
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "404", description = "Driver not found")
     public ResponseEntity<Void> deleteDriver(
-            @PathVariable Integer id) {
+            @PathVariable Long id) {
         driverService.deleteDriver(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{driverId}/vehicle/{vehicleId}")
-    @Operation(summary = "Assign vehicle to driver", description = "Assigns a vehicle to a driver")
-    @ApiResponse(responseCode = "200", description = "Vehicle assigned successfully")
-    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
-    @ApiResponse(responseCode = "404", description = "Driver or vehicle not found")
-    @ApiResponse(responseCode = "409", description = "Vehicle already assigned")
-    public ResponseEntity<DriverDto> assignVehicleToDriver(
-            @PathVariable Integer driverId,
-            @PathVariable Integer vehicleId) {
-        return ResponseEntity.ok(driverService.assignVehicleToDriver(driverId, vehicleId));
-    }
-
-    @DeleteMapping("/{driverId}/vehicle/{vehicleId}")
-    @Operation(summary = "Remove vehicle from driver", description = "Removes a vehicle from a driver")
-    @ApiResponse(responseCode = "200", description = "Vehicle removed successfully")
-    @ApiResponse(responseCode = "400", description = "Vehicle is not assigned to this driver")
-    @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
-    @ApiResponse(responseCode = "404", description = "Driver or vehicle not found")
-    public ResponseEntity<DriverDto> removeVehicleFromDriver(
-            @PathVariable Integer driverId,
-            @PathVariable Integer vehicleId) {
-        return ResponseEntity.ok(driverService.removeVehicleFromDriver(driverId, vehicleId));
-    }
 }

@@ -13,14 +13,15 @@ import java.util.Arrays;
 @EnableAspectJAutoProxy
 public class LoggingAspect {
 
-    @Pointcut("(execution(* org.example.driverandfleetmanagementapp.controller.*.*(..)) || " +
-            "execution(* org.example.driverandfleetmanagementapp.service.*.*(..)) || " +
-            "execution(* org.example.driverandfleetmanagementapp.config.*.*(..)))")
+
+    @Pointcut("(execution(* org.example.driverandfleetmanagementapp.controller..*.*(..)) || " +
+            "execution(* org.example.driverandfleetmanagementapp.service..*.*(..)) || " +
+            "execution(* org.example.driverandfleetmanagementapp.config..*.*(..)))")
     public void applicationPackagePointcut() {
     }
 
 
-    @Pointcut("execution(* org.example.driverandfleetmanagementapp.exception.*.*(..))")
+    @Pointcut("execution(* org.example.driverandfleetmanagementapp.exception..*.*(..))")
     public void exceptionPackagePointcut() {
     }
 
@@ -29,10 +30,13 @@ public class LoggingAspect {
     public void logBefore(JoinPoint joinPoint) {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
-        String args = Arrays.toString(joinPoint.getArgs());
 
         log.info("Starting {} in class {}", methodName, className);
-        log.debug("Method: {}.{} called with arguments: {}", className, methodName, args);
+
+        if (log.isDebugEnabled()) {
+            String args = Arrays.toString(joinPoint.getArgs());
+            log.debug("Method: {}.{} called with arguments: {}", className, methodName, args);
+        }
     }
 
 
@@ -42,7 +46,10 @@ public class LoggingAspect {
         String methodName = joinPoint.getSignature().getName();
 
         log.info("Completed {} in class {}", methodName, className);
-        log.debug("Method: {}.{} completed execution", className, methodName);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Method: {}.{} completed execution", className, methodName);
+        }
     }
 
     @AfterThrowing(pointcut = "exceptionPackagePointcut()", throwing = "exception")

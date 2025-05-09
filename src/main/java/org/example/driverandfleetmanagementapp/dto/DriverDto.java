@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.example.driverandfleetmanagementapp.model.Driver;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 
 @Data
@@ -16,7 +16,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DriverDto {
 
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 20, message = "First name must be between 2 and 20 characters")
@@ -49,5 +49,5 @@ public class DriverDto {
     @NotNull(message = "Status is required")
     private Driver.DriverStatus status;
 
-    private List<VehicleBasicDto> vehicles;
+    private Set<VehicleBasicDto> vehicles;
 }

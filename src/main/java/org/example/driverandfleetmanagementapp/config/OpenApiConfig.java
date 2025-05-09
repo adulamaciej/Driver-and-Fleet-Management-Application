@@ -24,7 +24,6 @@ public class OpenApiConfig {
                             .description("API for managing vehicles and drivers in a fleet management system. " +
                                     "This API requires authentication for most endpoints. " +
                                     "Use Basic Auth with provided user credentials.")
-                            .version("1.0.0")
                             .contact(new Contact()
                                     .name("Fleet Management Team")
                                     .email("support@fleetmanagement.org"))

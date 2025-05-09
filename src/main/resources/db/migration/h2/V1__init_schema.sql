@@ -2,7 +2,7 @@ CREATE SEQUENCE driver_sequence START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE vehicle_sequence START WITH 1 INCREMENT BY 1;
 
 CREATE TABLE drivers (
-                         id INT PRIMARY KEY,
+                         id BIGINT PRIMARY KEY,
                          first_name VARCHAR(30) NOT NULL,
                          last_name VARCHAR(30) NOT NULL,
                          license_number VARCHAR(9) NOT NULL UNIQUE,
@@ -14,7 +14,7 @@ CREATE TABLE drivers (
 );
 
 CREATE TABLE vehicles (
-                          id INT PRIMARY KEY,
+                          id BIGINT PRIMARY KEY,
                           license_plate VARCHAR(20) NOT NULL UNIQUE,
                           brand VARCHAR(20) NOT NULL,
                           model VARCHAR(20) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE vehicles (
                           technical_inspection_date DATE NOT NULL,
                           mileage DOUBLE NOT NULL,
                           status VARCHAR(20) NOT NULL,
-                          driver_id INT,
+                          driver_id BIGINT,
                           FOREIGN KEY (driver_id) REFERENCES drivers(id)
 );
 

@@ -4,6 +4,7 @@ package org.example.driverandfleetmanagementapp.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +35,25 @@ public class SecurityConfigTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
+    private VehicleDto validVehicle;
+
+
+    @BeforeEach
+    void setUp() {
+        validVehicle = VehicleDto.builder()
+                .licensePlate("ABC123")
+                .brand("Toyota")
+                .model("Corolla")
+                .type(Vehicle.VehicleType.CAR)
+                .registrationDate(LocalDate.now())
+                .technicalInspectionDate(LocalDate.now().plusYears(1))
+                .productionYear(2020)
+                .mileage(0.0)
+                .status(Vehicle.VehicleStatus.AVAILABLE)
+                .build();
+    }
 
     @Test
     void userDetailsService_shouldContainAdminAndUserAccounts() {
@@ -68,7 +87,7 @@ public class SecurityConfigTest {
     void userRole_cannotAccessModificationEndpoints() throws Exception {
         mockMvc.perform(post("/api/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+                        .content(objectMapper.writeValueAsString(validVehicle)))
                 .andExpect(status().isForbidden());
     }
 
@@ -80,22 +99,9 @@ public class SecurityConfigTest {
     }
 
 
-    // Vehicle DTO requires object
     @Test
     @WithMockUser(roles = "ADMIN")
     void adminRole_canAccessModificationEndpoints() throws Exception {
-        VehicleDto validVehicle = VehicleDto.builder()
-                .licensePlate("ABC123")
-                .brand("Toyota")
-                .model("Corolla")
-                .type(Vehicle.VehicleType.CAR)
-                .registrationDate(LocalDate.now())
-                .technicalInspectionDate(LocalDate.now().plusYears(1))
-                .productionYear(2020)
-                .mileage(0.0)
-                .status(Vehicle.VehicleStatus.AVAILABLE)
-                .build();
-
         mockMvc.perform(post("/api/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validVehicle)))

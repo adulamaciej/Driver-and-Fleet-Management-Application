@@ -1,7 +1,7 @@
 package org.example.driverandfleetmanagementapp.utilis;
 
 
-import org.example.driverandfleetmanagementapp.exception.BusinessLogicException;
+import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.model.Driver;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 
@@ -11,7 +11,7 @@ public class LicenseValidator {
     public static boolean canDriverOperateVehicle(Driver.LicenseType licenseType, Vehicle.VehicleType vehicleType) {
 
         if (licenseType == null) {
-            throw new BusinessLogicException("Driver has an unknown or invalid license type");
+            throw new BusinessLogicException("License type cannot be null");
         }
 
         return switch (licenseType) {

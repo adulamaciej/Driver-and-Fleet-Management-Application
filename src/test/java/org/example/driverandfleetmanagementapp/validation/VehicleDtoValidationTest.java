@@ -88,7 +88,7 @@ public class VehicleDtoValidationTest {
 
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
-                .isEqualTo("Technical inspection date must be in the future");
+                .isEqualTo("Technical inspection date must be today or in the future");
     }
 
     @Test

@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,6 +25,8 @@ public class VehicleRepositoryTest {
 
     private Vehicle.VehicleBuilder defaultVehicleBuilder;
 
+    private Vehicle testVehicle;
+
     @BeforeEach
     void setUp() {
         defaultVehicleBuilder = Vehicle.builder()
@@ -37,67 +39,68 @@ public class VehicleRepositoryTest {
                 .technicalInspectionDate(LocalDate.now().plusYears(1))
                 .mileage(15000.0)
                 .status(Vehicle.VehicleStatus.AVAILABLE);
+
+        testVehicle = defaultVehicleBuilder.build();
+        vehicleRepository.save(testVehicle);
     }
 
 
     @Test
     void findByLicensePlate_ShouldReturnVehicle(){
-        Vehicle vehicle = defaultVehicleBuilder.build();
-        vehicle = vehicleRepository.save(vehicle);
 
-        String savedLicensePlate = vehicle.getLicensePlate();
-
-        Optional<Vehicle> vehicleOptional = vehicleRepository.findByLicensePlate(savedLicensePlate);
+        Optional<Vehicle> vehicleOptional = vehicleRepository.findByLicensePlate(testVehicle.getLicensePlate());
 
         assertThat(vehicleOptional).isPresent();
         assertThat(vehicleOptional.get().getLicensePlate()).isEqualTo("ABC52345");
+        assertThat(vehicleOptional.get()).isEqualTo(testVehicle);
     }
 
     @Test
     void findById_ShouldReturnVehicleId() {
-        Vehicle vehicle = defaultVehicleBuilder.build();
-        vehicleRepository.save(vehicle);
-
-        Integer savedId = vehicle.getId();
-
-        Optional<Vehicle> vehicleOptional = vehicleRepository.findById(savedId);
+        Optional<Vehicle> vehicleOptional = vehicleRepository.findById(testVehicle.getId());
 
         assertThat(vehicleOptional).isPresent();
-        assertThat(vehicleOptional.get().getId()).isEqualTo(savedId);
+        assertThat(vehicleOptional.get().getId()).isEqualTo(testVehicle.getId());
     }
+
     @Test
     void findByStatus_ShouldReturnVehiclesWithStatus() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 20);
 
-        Page<Vehicle> vehicles = vehicleRepository.findByStatus(Vehicle.VehicleStatus.AVAILABLE, pageable);
+        Page<Vehicle> vehicles = vehicleRepository.findByStatus(testVehicle.getStatus(), pageable);
 
         assertThat(vehicles.getContent()).isNotEmpty();
+        assertThat(vehicles.getContent()).contains(testVehicle);
         assertThat(vehicles.getContent().getFirst().getStatus()).isEqualTo(Vehicle.VehicleStatus.AVAILABLE);
     }
+
     @Test
     void findByBrandAndModel_ShouldReturnVehicles() {
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<Vehicle> vehicles = vehicleRepository.findByBrandAndModel("Toyota", "Corolla", pageable);
+        Page<Vehicle> vehicles = vehicleRepository.findByBrandAndModel( testVehicle.getBrand(), testVehicle.getModel(), pageable);
 
         assertThat(vehicles.getContent()).isNotEmpty();
+        assertThat(vehicles.getContent()).contains(testVehicle);
         assertThat(vehicles.getContent().getFirst().getBrand()).isEqualTo("Toyota");
         assertThat(vehicles.getContent().getFirst().getModel()).isEqualTo("Corolla");
     }
 
     @Test
     void findByType_ShouldReturnVehicles() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 30);
 
-        Page<Vehicle> vehicles = vehicleRepository.findByType(Vehicle.VehicleType.CAR, pageable);
+        Page<Vehicle> vehicles = vehicleRepository.findByType(testVehicle.getType(), pageable);
 
         assertThat(vehicles.getContent()).isNotEmpty();
+        assertThat(vehicles.getContent()).contains(testVehicle);
         assertThat(vehicles.getContent().getFirst().getType()).isEqualTo(Vehicle.VehicleType.CAR);
     }
 
     @Test
     void findByDriverId_ShouldReturnVehicles() {
-        List<Vehicle> vehicles = vehicleRepository.findByDriverId(1);
+        Long driverId = 1L;
+        Set<Vehicle> vehicles = vehicleRepository.findByDriverId(driverId);
 
         assertThat(vehicles).isNotEmpty();
         vehicles.forEach(vehicle ->
@@ -109,8 +112,9 @@ public class VehicleRepositoryTest {
     void findByTechnicalInspectionDateBetween_ShouldReturnVehicles() {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = LocalDate.now().plusMonths(6);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        List<Vehicle> vehicles = vehicleRepository.findByTechnicalInspectionDateBetween(startDate, endDate);
+        Page<Vehicle> vehicles = vehicleRepository.findByTechnicalInspectionDateBetween(startDate, endDate, pageable);
 
         assertThat(vehicles).isNotEmpty();
         vehicles.forEach(vehicle -> {
@@ -120,15 +124,19 @@ public class VehicleRepositoryTest {
         });
     }
 
+
     @Test
     void getAllVehicles_ShouldReturnPaginatedResults() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 30);
 
         Page<Vehicle> allVehicles = vehicleRepository.findAll(pageable);
 
         assertThat(allVehicles).isNotNull();
         assertThat(allVehicles.getContent()).isNotEmpty();
-        assertThat(allVehicles.getContent().size()).isLessThanOrEqualTo(10);
+        assertThat(allVehicles.getContent()).contains(testVehicle);
+        assertThat(allVehicles.getContent().size()).isLessThanOrEqualTo(30);
     }
+
+
 }
 

@@ -1,8 +1,13 @@
 package org.example.driverandfleetmanagementapp.exception;
 
 
+import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
+import org.example.driverandfleetmanagementapp.exception.custom.ResourceConflictException;
+import org.example.driverandfleetmanagementapp.exception.custom.ResourceNotFoundException;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,7 +17,6 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
@@ -50,6 +54,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({TypeMismatchException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ErrorResponse> handleConversionErrors(WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .localDateTime(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Invalid value. Check documentation for allowed values.")
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -69,10 +85,9 @@ public class GlobalExceptionHandler {
                 .localDateTime(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message("Validation failed"+ex.getMessage())
+                .message("Validation failed" +ex.getMessage())
                 .path(request.getDescription(false))
                 .build();
-
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

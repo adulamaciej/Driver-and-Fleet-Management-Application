@@ -34,7 +34,6 @@ public class LicenseValidatorTest {
             "D, VAN, false",
             "D, TRUCK, false"
     })
-
     void testLicenseVehicleCompatibility(String licenseType, String vehicleType, boolean expected) {
 
         boolean result = LicenseValidator.canDriverOperateVehicle(

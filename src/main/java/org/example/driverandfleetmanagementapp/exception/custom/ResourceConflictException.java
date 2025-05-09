@@ -1,4 +1,4 @@
-package org.example.driverandfleetmanagementapp.exception;
+package org.example.driverandfleetmanagementapp.exception.custom;
 
 
 public class ResourceConflictException extends RuntimeException {

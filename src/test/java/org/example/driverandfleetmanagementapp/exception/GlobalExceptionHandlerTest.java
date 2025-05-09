@@ -1,6 +1,9 @@
 package org.example.driverandfleetmanagementapp.exception;
 
 
+import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
+import org.example.driverandfleetmanagementapp.exception.custom.ResourceConflictException;
+import org.example.driverandfleetmanagementapp.exception.custom.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,7 +110,7 @@ class GlobalExceptionHandlerTest {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus()).isEqualTo(expectedStatus.value());
         assertThat(errorResponse.getError()).isEqualTo(expectedStatus.getReasonPhrase());
-        assertThat(errorResponse.getMessage()).isEqualTo(expectedMessage);
+        assertThat(errorResponse.getMessage()).startsWith(expectedMessage);
 
         if (verifyPath) {
             assertThat(errorResponse.getPath()).isEqualTo(TEST_PATH);

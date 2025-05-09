@@ -3,7 +3,7 @@ package org.example.driverandfleetmanagementapp.controller;
 
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
 import org.example.driverandfleetmanagementapp.model.Driver;
-import org.example.driverandfleetmanagementapp.service.DriverService;
+import org.example.driverandfleetmanagementapp.service.driver.DriverService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +17,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-
 import java.time.LocalDate;
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -32,16 +32,18 @@ class DriverControllerTest {
     @Mock
     private DriverService driverService;
 
+
     @InjectMocks
     private DriverController driverController;
 
     private DriverDto driverDto;
     private Page<DriverDto> driverPage;
 
+
     @BeforeEach
     void setUp() {
         driverDto = DriverDto.builder()
-                .id(1)
+                .id(1L)
                 .firstName("John")
                 .lastName("Doe")
                 .licenseNumber("123456789")
@@ -68,13 +70,13 @@ class DriverControllerTest {
 
     @Test
     void getDriverById_ShouldReturnDriver() {
-        when(driverService.getDriverById(1)).thenReturn(driverDto);
+        when(driverService.getDriverById(1L)).thenReturn(driverDto);
 
-        ResponseEntity<DriverDto> response = driverController.getDriverById(1);
+        ResponseEntity<DriverDto> response = driverController.getDriverById(1L);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(driverDto);
-        verify(driverService).getDriverById(1);
+        verify(driverService).getDriverById(1L);
     }
 
     @Test
@@ -101,13 +103,13 @@ class DriverControllerTest {
 
     @Test
     void searchDriversByName_ShouldReturnDrivers() {
-        when(driverService.getDriversByName("John", "Doe")).thenReturn(List.of(driverDto));
+        when(driverService.getDriversByFirstAndLastName("John", "Doe")).thenReturn(List.of(driverDto));
 
-        ResponseEntity<List<DriverDto>> response = driverController.searchDriversByName("John", "Doe");
+        ResponseEntity<List<DriverDto>> response = driverController.getDriversByFirstAndLastName("John", "Doe");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).containsExactly(driverDto);
-        verify(driverService).getDriversByName("John","Doe");
+        verify(driverService).getDriversByFirstAndLastName("John","Doe");
     }
 
     @Test
@@ -127,69 +129,49 @@ class DriverControllerTest {
                 .status(Driver.DriverStatus.SUSPENDED)
                 .build();
 
-        when(driverService.updateDriverStatus(1, Driver.DriverStatus.SUSPENDED)).thenReturn(updatedDriverDto);
+        when(driverService.updateDriverStatus(1L, Driver.DriverStatus.SUSPENDED)).thenReturn(updatedDriverDto);
 
         ResponseEntity<DriverDto> response = driverController.updateDriverStatus(
-                1, Driver.DriverStatus.SUSPENDED);
+                1L, Driver.DriverStatus.SUSPENDED);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(updatedDriverDto);
 
-        verify(driverService).updateDriverStatus(1, Driver.DriverStatus.SUSPENDED);
+        verify(driverService).updateDriverStatus(1L, Driver.DriverStatus.SUSPENDED);
     }
 
 
     @Test
     void createDriver_ShouldReturnCreatedDriver() {
-        when(driverService.createDriver(any(DriverDto.class))).thenReturn(driverDto);
+        when(driverService.createDriver(eq(driverDto))).thenReturn(driverDto);
 
         ResponseEntity<DriverDto> response = driverController.createDriver(driverDto);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isEqualTo(driverDto);
-        verify(driverService).createDriver(driverDto);
+        verify(driverService).createDriver(eq(driverDto));
     }
 
     @Test
     void updateDriver_ShouldReturnUpdatedDriver() {
-        when(driverService.updateDriver(eq(1), any(DriverDto.class))).thenReturn(driverDto);
+        when(driverService.updateDriver(eq(1L), eq(driverDto))).thenReturn(driverDto);
 
-        ResponseEntity<DriverDto> response = driverController.updateDriver(1, driverDto);
+        ResponseEntity<DriverDto> response = driverController.updateDriver(1L, driverDto);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(driverDto);
-        verify(driverService).updateDriver(eq(1), eq(driverDto));
+        verify(driverService).updateDriver(eq(1L), eq(driverDto));
     }
 
     @Test
     void deleteDriver_ShouldReturnNoContent() {
-        doNothing().when(driverService).deleteDriver(1);
+        doNothing().when(driverService).deleteDriver(1L);
 
-        ResponseEntity<Void> response = driverController.deleteDriver(1);
+        ResponseEntity<Void> response = driverController.deleteDriver(1L);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        verify(driverService).deleteDriver(1);
+        verify(driverService).deleteDriver(1L);
     }
 
-    @Test
-    void assignVehicleToDriver_ShouldReturnUpdatedDriver() {
-        when(driverService.assignVehicleToDriver(1, 2)).thenReturn(driverDto);
 
-        ResponseEntity<DriverDto> response = driverController.assignVehicleToDriver(1, 2);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(driverDto);
-        verify(driverService).assignVehicleToDriver(1, 2);
-    }
-
-    @Test
-    void removeVehicleFromDriver_ShouldReturnUpdatedDriver() {
-        when(driverService.removeVehicleFromDriver(1, 2)).thenReturn(driverDto);
-
-        ResponseEntity<DriverDto> response = driverController.removeVehicleFromDriver(1, 2);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(driverDto);
-        verify(driverService).removeVehicleFromDriver(1, 2);
-    }
 }

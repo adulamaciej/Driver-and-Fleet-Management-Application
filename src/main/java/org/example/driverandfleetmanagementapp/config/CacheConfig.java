@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.Arrays;
+import java.util.Set;
 
 
 @Configuration
@@ -21,7 +21,7 @@ public class CacheConfig {
                 "maximumSize=500,expireAfterWrite=15m,recordStats"
         );
 
-        cacheManager.setCacheNames(Arrays.asList("vehicles", "drivers"));
+        cacheManager.setCacheNames(Set.of("vehicles", "drivers"));
         return cacheManager;
     }
 }

@@ -3,6 +3,7 @@ package org.example.driverandfleetmanagementapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Builder(toBuilder = true)
 public class Vehicle {
 
@@ -18,7 +20,7 @@ public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vehicle_seq")
     @SequenceGenerator(name = "vehicle_seq", sequenceName = "vehicle_sequence", allocationSize = 1)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String licensePlate;
@@ -49,9 +51,11 @@ public class Vehicle {
     @Column(nullable = false)
     private VehicleStatus status;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver_id")
     private Driver driver;
+
 
     public enum VehicleType {
         CAR, VAN, TRUCK, BUS

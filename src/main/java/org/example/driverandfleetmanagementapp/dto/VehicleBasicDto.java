@@ -12,10 +12,13 @@ import org.example.driverandfleetmanagementapp.model.Vehicle;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class VehicleBasicDto {
-    private Integer id;
+    private Long id;
     private String licensePlate;
     private String brand;
     private String model;
     private Vehicle.VehicleStatus status;
+
+
 }

@@ -3,10 +3,9 @@ package org.example.driverandfleetmanagementapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 
 @Entity
@@ -14,6 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(of = "id") // prevents StackOverFlowError
 @Builder(toBuilder = true)
 public class Driver {
 
@@ -21,7 +21,7 @@ public class Driver {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "driver_seq")
     @SequenceGenerator(name = "driver_seq", sequenceName = "driver_sequence", allocationSize = 1)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
     private String firstName;
@@ -36,7 +36,6 @@ public class Driver {
     @Column(nullable = false)
     private LicenseType licenseType;
 
-
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 
@@ -50,10 +49,10 @@ public class Driver {
     @Column(nullable = false)
     private DriverStatus status;
 
+    @ToString.Exclude
     @Builder.Default
     @OneToMany(mappedBy = "driver")
-    @BatchSize(size = 20)
-    private List<Vehicle> vehicles = new ArrayList<>();
+    private Set<Vehicle> vehicles = new LinkedHashSet<>();
 
     public enum LicenseType {
         B, C, D, CE, DE

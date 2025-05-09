@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VehicleDto {
 
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "License plate is required")
     @Pattern(regexp = "^[A-Z0-9]{5,10}$", message = "Invalid license plate format")
@@ -39,7 +39,7 @@ public class VehicleDto {
     private LocalDate registrationDate;
 
     @NotNull(message = "Technical inspection date is required")
-    @Future(message = "Technical inspection date must be in the future")
+    @FutureOrPresent(message = "Technical inspection date must be today or in the future")
     private LocalDate technicalInspectionDate;
 
     @NotNull(message = "Mileage is required")
@@ -48,7 +48,6 @@ public class VehicleDto {
 
     @NotNull(message = "Status is required")
     private Vehicle.VehicleStatus status;
-
 
     private DriverBasicDto driver;
 }
