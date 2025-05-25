@@ -53,7 +53,8 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **PostgreSQL**: Production database
 - **H2**: Development and testing database
 - **Lombok**: For boilerplate code reduction
--  **Jenkins**: CI/CD configuration
+- **Jenkins**: CI/CD configuration
+- **Monitoring**: Prometheus metrics with Spring Boot Actuator
 - **Asynchronous Processing**: Non-blocking request handling with @Async and CompletableFuture
 
 
@@ -130,8 +131,6 @@ The application supports multiple environment profiles:
 - `PUT /api/drivers/{id}`: Update a driver
 - `DELETE /api/drivers/{id}`: Delete a driver
 - `PATCH /api/drivers/{id}/status`: Update driver status
-- `POST /api/drivers/{driverId}/vehicle/{vehicleId}`: Assign vehicle to driver
-- `DELETE /api/drivers/{driverId}/vehicle/{vehicleId}`: Remove vehicle from driver
 
 
 ### Vehicle Endpoints
@@ -147,11 +146,23 @@ The application supports multiple environment profiles:
 - `DELETE /api/vehicles/{id}`: Delete a vehicle
 - `PATCH /api/vehicles/{id}/mileage`: Update vehicle mileage
 - `PATCH /api/vehicles/{id}/status`: Update vehicle status
-- `POST /api/vehicles/{vehicleId}/driver/{driverId}`: Assign driver to vehicle
-- `DELETE /api/vehicles/{vehicleId}/driver`: Remove driver from vehicle
+
 
 ### Notification Endpoints
 - `POST /api/notifications/inspection-reminders`: Send notifications for vehicles with upcoming technical inspections
+
+
+### Assignment Endpoints
+- `POST /api/assignments/{driverId}/vehicle/{vehicleId}`: Assign vehicle to driver
+- `DELETE /api/assignments/{driverId}/vehicle/{vehicleId}`: Remove vehicle from driver
+
+
+### Monitoring Endpoints
+- `GET /actuator/health`: Application health status
+- `GET /actuator/prometheus`: Metrics in Prometheus format
+- `GET /actuator/caches`: Cache statistics
+
+  
 
 ## Security
 
