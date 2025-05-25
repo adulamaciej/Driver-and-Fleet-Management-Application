@@ -49,7 +49,6 @@ public class Driver {
     @Column(nullable = false)
     private DriverStatus status;
 
-    @ToString.Exclude
     @Builder.Default
     @OneToMany(mappedBy = "driver")
     private Set<Vehicle> vehicles = new LinkedHashSet<>();

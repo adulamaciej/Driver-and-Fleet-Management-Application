@@ -51,7 +51,6 @@ public class Vehicle {
     @Column(nullable = false)
     private VehicleStatus status;
 
-    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver_id")
     private Driver driver;
