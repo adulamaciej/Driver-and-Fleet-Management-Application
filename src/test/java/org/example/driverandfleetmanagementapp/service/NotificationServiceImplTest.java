@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.service;
 
+import org.example.driverandfleetmanagementapp.dto.notification.InspectionReminderResponse;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.example.driverandfleetmanagementapp.repository.VehicleRepository;
 import org.example.driverandfleetmanagementapp.service.notification.NotificationServiceImpl;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.data.domain.*;
 import java.util.List;
@@ -57,10 +57,12 @@ public class NotificationServiceImplTest {
         when(vehicleRepository.findByTechnicalInspectionDateBetween(any(), any(), any()))
                 .thenReturn(vehiclePage);
 
-        Map<String, Object> response = notificationService.processInspectionReminders(30, pageable);
+        InspectionReminderResponse response = notificationService.processInspectionReminders(30, pageable);
 
-        assertThat(response.get("message")).isEqualTo("Processing 1 inspection reminder notifications");
-        assertThat(response.get("vehicles")).asList().hasSize(1);
+        assertThat(response.getMessage()).isEqualTo("Processing 1 inspection reminder notifications");
+        assertThat(response.getVehicles()).hasSize(1);
+        assertThat(response.getTotalVehicles()).isEqualTo(1);
+        assertThat(response.getVehicles().getFirst().getLicensePlate()).isEqualTo("ABC123");
     }
 
     @Test
@@ -70,10 +72,11 @@ public class NotificationServiceImplTest {
         when(vehicleRepository.findByTechnicalInspectionDateBetween(any(), any(), any()))
                 .thenReturn(emptyPage);
 
-        Map<String, Object> response = notificationService.processInspectionReminders(30, pageable);
+        InspectionReminderResponse  response = notificationService.processInspectionReminders(30, pageable);
 
-        assertThat(response).containsKey("message");
-        assertThat(response.get("message")).isEqualTo("No vehicles with upcoming inspections found");
+        assertThat(response.getMessage()).isEqualTo("No vehicles with upcoming inspections found");
+        assertThat(response.getTotalVehicles()).isEqualTo(0);
+        assertThat(response.getVehicles()).isEmpty();
     }
 
     @Test
@@ -81,18 +84,6 @@ public class NotificationServiceImplTest {
         CompletableFuture<Void> future = notificationService.sendInspectionReminderNotification(vehicle);
 
         assertThat(future).isNotNull();
-    }
-
-    @Test
-    void sendInspectionReminderNotification_WhenInterrupted_ShouldReturnFailedFuture() {
-        Thread.currentThread().interrupt();
-
-        CompletableFuture<Void> future = notificationService.sendInspectionReminderNotification(vehicle);
-
-        assertThat(future).isCompletedExceptionally();
-
-        boolean wasInterrupted = Thread.interrupted();
-        assertThat(wasInterrupted).isTrue();
     }
 
 

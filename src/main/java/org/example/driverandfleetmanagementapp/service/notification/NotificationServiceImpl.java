@@ -1,6 +1,8 @@
 package org.example.driverandfleetmanagementapp.service.notification;
 
 import lombok.RequiredArgsConstructor;
+import org.example.driverandfleetmanagementapp.dto.notification.InspectionReminderResponse;
+import org.example.driverandfleetmanagementapp.dto.notification.VehicleInspectionDto;
 import org.example.driverandfleetmanagementapp.model.Vehicle;
 import org.example.driverandfleetmanagementapp.repository.VehicleRepository;
 import org.springframework.data.domain.Page;
@@ -10,11 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -27,53 +27,46 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> processInspectionReminders(int days, Pageable pageable) {
+    public InspectionReminderResponse  processInspectionReminders(int days, Pageable pageable) {
 
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusDays(days);
         Page<Vehicle> vehiclesPage = vehicleRepository.findByTechnicalInspectionDateBetween(today, endDate, pageable);
 
-
         if (vehiclesPage.isEmpty()) {
-            return Map.of("message", "No vehicles with upcoming inspections found");
+            return InspectionReminderResponse.builder()
+                    .message("No vehicles with upcoming inspections found")
+                    .totalVehicles(0L)
+                    .vehicles(Collections.emptyList())
+                    .build();
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Processing " + vehiclesPage.getTotalElements() + " inspection reminder notifications");
-
-
-        List<Map<String, Object>> vehicleInfos = vehiclesPage.getContent().stream()
-                .map(vehicle -> {
-                    Map<String, Object> info = new LinkedHashMap<>();
-                    info.put("id", vehicle.getId());
-                    info.put("licensePlate", vehicle.getLicensePlate());
-                    info.put("brand", vehicle.getBrand());
-                    info.put("model", vehicle.getModel());
-                    info.put("inspectionDate", vehicle.getTechnicalInspectionDate().toString());
-                    return info;
-                })
+        List<VehicleInspectionDto> vehicleInfos = vehiclesPage.getContent().stream()
+                .map(vehicle -> VehicleInspectionDto.builder()
+                        .id(vehicle.getId())
+                        .licensePlate(vehicle.getLicensePlate())
+                        .brand(vehicle.getBrand())
+                        .model(vehicle.getModel())
+                        .inspectionDate(vehicle.getTechnicalInspectionDate().toString())
+                        .build())
                 .toList();
 
-        response.put("vehicles", vehicleInfos);
         vehiclesPage.forEach(this::sendInspectionReminderNotification);
 
-        return response;
+        return InspectionReminderResponse.builder()
+                .message("Processing " + vehiclesPage.getTotalElements() + " inspection reminder notifications")
+                .totalVehicles(vehiclesPage.getTotalElements())
+                .vehicles(vehicleInfos)
+                .build();
     }
+
 
     @Override
     @Async("taskExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<Void> sendInspectionReminderNotification(Vehicle vehicle) {
-
-        try {
-            Thread.sleep(2000);
-            return CompletableFuture.completedFuture(null);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return CompletableFuture.failedFuture(e);
-        } catch (Exception e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        return CompletableFuture
+        .supplyAsync(() -> null, CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS));
     }
 
 }
