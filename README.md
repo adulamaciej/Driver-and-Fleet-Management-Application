@@ -58,6 +58,16 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **Asynchronous Processing**: Non-blocking request handling with @Async and CompletableFuture
 
 
+
+## Profiles
+- Critical: Each profile uses different Flyway migration paths. Choose specific profile to avoid database schema conflicts.
+- The application supports multiple environment profiles:
+- dev: Uses H2 in-memory database with dedicated Flyway migrations (classpath:db/migration/h2) and DEBUG level logging (detailed SQL, Flyway, app logs)
+- test: Uses H2 for testing with appropriate test configurations (classpath:db/migration/h2) and DEBUG level logging for comprehensive test debugging
+- prod: Uses PostgreSQL with production-specific Flyway migrations (classpath:db/migration/postgresql) and WARN/INFO level logging for minimal production output
+
+
+
 ## Jenkins Setup
 - Start all the container: docker-compose up -d
 - Access jenkins: http://localhost:8090
