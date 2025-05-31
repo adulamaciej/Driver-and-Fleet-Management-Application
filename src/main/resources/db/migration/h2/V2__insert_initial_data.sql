@@ -18,9 +18,9 @@ INSERT INTO drivers (id, first_name, last_name, license_number, license_type, da
 
 
 INSERT INTO vehicles (id, license_plate, brand, model, production_year, type, registration_date, technical_inspection_date, mileage, status, driver_id) VALUES
-        (nextval('vehicle_sequence'),'ABC12345', 'Toyota', 'Corolla', 2015, 'CAR', '2016-01-10', '2025-04-20', 120000, 'IN_USE', 1),
-        (nextval('vehicle_sequence'),'DEF23456', 'Ford', 'Focus', 2018, 'CAR', '2019-03-20', '2025-07-15', 90000, 'AVAILABLE', 1),
-        (nextval('vehicle_sequence'),'GHI34567', 'Volkswagen', 'Passat', 2017, 'CAR', '2018-05-18', '2025-09-10', 110000, 'IN_SERVICE', 2),
+        (nextval('vehicle_sequence'),'ABC12345', 'Toyota', 'Corolla', 2015, 'CAR', '2016-01-10', '2025-06-20', 120000, 'IN_USE', 1),
+        (nextval('vehicle_sequence'),'DEF23456', 'Ford', 'Focus', 2018, 'CAR', '2019-03-20', '2025-07-01', 90000, 'AVAILABLE', 1),
+        (nextval('vehicle_sequence'),'GHI34567', 'Volkswagen', 'Passat', 2017, 'CAR', '2018-05-18', '2025-06-10', 110000, 'IN_SERVICE', 2),
         (nextval('vehicle_sequence'),'JKL45678', 'Renault', 'Clio', 2020, 'CAR', '2020-10-30', '2026-11-05', 30000, 'AVAILABLE', 2),
         (nextval('vehicle_sequence'),'MNO56789', 'Scania', 'R450', 2019, 'TRUCK', '2020-07-01', '2025-05-25', 200000, 'IN_USE', 3),
         (nextval('vehicle_sequence'),'PQR67890', 'MAN', 'TGS', 2016, 'TRUCK', '2017-09-12', '2025-10-15', 320000, 'IN_USE', 3),

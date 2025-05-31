@@ -9,12 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -63,12 +61,16 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async("taskExecutor")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true) // purpose is to show a 2s simulation
     public CompletableFuture<Void> sendInspectionReminderNotification(Vehicle vehicle) {
-        return CompletableFuture
-        .supplyAsync(() -> null, CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS));
-    }
+        try {
+            Thread.sleep(2000);
+            return CompletableFuture.completedFuture(null);
+        } catch (InterruptedException e) {
+            return CompletableFuture.failedFuture(e);
+        }
 
+    }
 }
 
 
