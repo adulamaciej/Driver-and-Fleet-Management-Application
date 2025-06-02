@@ -17,13 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -78,11 +75,14 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void handleMethodArgumentNotValidException_ShouldReturnBadRequestStatus() {
-        MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
+        ResponseEntity<ErrorResponse> response = exceptionHandler.handleValidationExceptions(webRequest);
+        verifyErrorResponse(response, HttpStatus.BAD_REQUEST, "Invalid input data. Please check your request.", true);
+    }
 
-        ResponseEntity<ErrorResponse> response = exceptionHandler.handleValidationExceptions(exception, webRequest);
-
-        verifyErrorResponse(response, HttpStatus.BAD_REQUEST, "Validation failed", true);
+    @Test
+    void handleBadCredentialsException_ShouldReturnUnauthorizedStatus() {
+        ResponseEntity<ErrorResponse> response = exceptionHandler.handleBadCredentialsException(webRequest);
+        verifyErrorResponse(response, HttpStatus.UNAUTHORIZED, "Invalid username or password", true);
     }
 
     @ParameterizedTest

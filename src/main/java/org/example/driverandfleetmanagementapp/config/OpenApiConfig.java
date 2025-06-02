@@ -31,10 +31,11 @@ public class OpenApiConfig {
                                     .name("MIT License")
                                     .url("https://opensource.org/licenses/MIT")))
                     .components(new Components()
-                            .addSecuritySchemes("basicAuth", new SecurityScheme()
+                            .addSecuritySchemes("bearerAuth", new SecurityScheme()
                                     .type(SecurityScheme.Type.HTTP)
-                                    .scheme("basic")
-                                    .description("Use your username and password to access secured endpoints.")))
-                    .addSecurityItem(new SecurityRequirement().addList("basicAuth")); // Global authorization requirements
+                                    .scheme("bearer")
+                                    .bearerFormat("JWT")
+                                    .description("Enter JWT token obtained from /api/auth/login endpoint (access below). ")))
+                    .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
         }
     }

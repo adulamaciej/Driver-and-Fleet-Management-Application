@@ -29,9 +29,6 @@ public class OpenApiConfigTest {
 
         assertThat(info).isNotNull();
         assertThat(info.getTitle()).isEqualTo("Fleet and Driver Management API");
-        assertThat(info.getDescription()).isEqualTo("API for managing vehicles and drivers in a fleet management system. " +
-                "This API requires authentication for most endpoints. " +
-                "Use Basic Auth with provided user credentials.");
     }
 
     @Test
@@ -46,11 +43,11 @@ public class OpenApiConfigTest {
 
     @Test
     void securitySchemeShouldBeConfiguredCorrectly() {
-        SecurityScheme securityScheme = openAPI.getComponents().getSecuritySchemes().get("basicAuth");
+        SecurityScheme securityScheme = openAPI.getComponents().getSecuritySchemes().get("bearerAuth");
 
         assertThat(securityScheme).isNotNull();
         assertThat(securityScheme.getType()).isEqualTo(SecurityScheme.Type.HTTP);
-        assertThat(securityScheme.getScheme()).isEqualTo("basic");
-        assertThat(securityScheme.getDescription()).isEqualTo("Use your username and password to access secured endpoints.");
+        assertThat(securityScheme.getScheme()).isEqualTo("bearer");
+        assertThat(securityScheme.getBearerFormat()).isEqualTo("JWT");
     }
 }

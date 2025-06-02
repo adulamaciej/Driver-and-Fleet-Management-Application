@@ -14,9 +14,10 @@ import java.util.Arrays;
 public class LoggingAspect {
 
 
-    @Pointcut("(execution(* org.example.driverandfleetmanagementapp.controller..*.*(..)) || " +
+    @Pointcut("execution(* org.example.driverandfleetmanagementapp.controller..*.*(..)) || " +
             "execution(* org.example.driverandfleetmanagementapp.service..*.*(..)) || " +
-            "execution(* org.example.driverandfleetmanagementapp.config..*.*(..)))")
+            "execution(* org.example.driverandfleetmanagementapp.config..*.*(..)) || " +
+            "execution(* org.example.driverandfleetmanagementapp.security..*.*(..))")
     public void applicationPackagePointcut() {
     }
 

@@ -185,6 +185,11 @@ public class VehicleServiceImpl implements VehicleService {
                     "Please remove driver assignment first.");
         }
 
+        if (status == Vehicle.VehicleStatus.IN_SERVICE && vehicle.getDriver() != null) {
+            throw new BusinessLogicException("Cannot change vehicle status to IN_SERVICE while driver is assigned. " +
+                    "Please remove driver assignment first. Driver can be reassigned to another available vehicle.");
+        }
+
         if (status == Vehicle.VehicleStatus.IN_USE && vehicle.getDriver() == null) {
             throw new BusinessLogicException("Cannot change vehicle status to IN_USE without an assigned driver. " +
                     "Please assign a driver first.");
