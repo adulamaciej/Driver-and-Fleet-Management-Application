@@ -57,6 +57,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **JWT Authentication**: Token-based auth with role-based access control
 - **Spring Security**: Comprehensive security configuration
 - **Password Encryption**: BCrypt hashing for stored passwords
+- **Rate Limiting **: Resilience4j for restricting the number of requests allowed within a specific time
 
 ### Code Quality & Mapping
 - **MapStruct**: Compile-time DTO mapping generation
