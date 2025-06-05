@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.controller;
 
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +27,7 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
 
-
+    @RateLimiter(name = "api")
     @GetMapping
     @Operation(summary = "Get all vehicles", description = "Retrieves paginated list of vehicles")
     @ApiResponse(responseCode = "200", description = "List of vehicles retrieved successfully")
@@ -40,6 +41,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getAllVehicles(PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/{id}")
     @Operation(summary = "Get vehicle by ID", description = "Retrieves a specific vehicle by ID")
     @ApiResponse(responseCode = "200", description = "Vehicle retrieved successfully")
@@ -50,6 +52,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getVehicleById(id));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/plate/{licensePlate}")
     @Operation(summary = "Get vehicle by license plate", description = "Retrieves a specific vehicle by license plate")
     @ApiResponse(responseCode = "200", description = "Vehicle retrieved successfully")
@@ -60,6 +63,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getVehicleByLicensePlate(licensePlate));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/status/{status}")
     @Operation(summary = "Get vehicles by status", description = "Retrieves vehicles by their status with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
@@ -76,6 +80,7 @@ public class VehicleController {
         ));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/search")
     @Operation(summary = "Search vehicles by brand and model", description = "Searches for vehicles by brand and model with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
@@ -93,7 +98,7 @@ public class VehicleController {
         ));
     }
 
-
+    @RateLimiter(name = "api")
     @GetMapping("/type/{type}")
     @Operation(summary = "Get vehicles by type", description = "Retrieves vehicles by their type with pagination")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
@@ -111,6 +116,7 @@ public class VehicleController {
     }
 
 
+    @RateLimiter(name = "api")
     @GetMapping("/driver/{driverId}")
     @Operation(summary = "Get vehicles by driver ID", description = "Retrieves vehicles assigned to a specific driver")
     @ApiResponse(responseCode = "200", description = "Vehicles retrieved successfully")
@@ -121,6 +127,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getVehiclesByDriverId(driverId));
     }
 
+    @RateLimiter(name = "admin-api")
     @PostMapping
     @Operation(summary = "Create a new vehicle", description = "Creates a new vehicle entry")
     @ApiResponse(responseCode = "201", description = "Vehicle created successfully")
@@ -132,6 +139,7 @@ public class VehicleController {
         return new ResponseEntity<>(vehicleService.createVehicle(vehicleDto), HttpStatus.CREATED);
     }
 
+    @RateLimiter(name = "admin-api")
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing vehicle", description = "Updates a vehicle entry by ID")
     @ApiResponse(responseCode = "200", description = "Vehicle updated successfully")
@@ -145,6 +153,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.updateVehicle(id, vehicleDto));
     }
 
+    @RateLimiter(name = "admin-api")
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a vehicle", description = "Deletes a vehicle entry by ID")
     @ApiResponse(responseCode = "204", description = "Vehicle deleted successfully")
@@ -156,7 +165,7 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @RateLimiter(name = "admin-api")
     @PatchMapping("/{id}/mileage")
     @Operation(summary = "Update vehicle mileage", description = "Updates the mileage of a vehicle")
     @ApiResponse(responseCode = "200", description = "Mileage updated successfully")
@@ -169,6 +178,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.updateVehicleMileage(id, mileage));
     }
 
+    @RateLimiter(name = "admin-api")
     @PatchMapping("/{id}/status")
     @Operation(summary = "Update vehicle status", description = "Updates the status of a vehicle")
     @ApiResponse(responseCode = "200", description = "Status updated successfully")

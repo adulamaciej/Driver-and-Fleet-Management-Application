@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.exception;
 
 
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.exception.custom.ResourceConflictException;
 import org.example.driverandfleetmanagementapp.exception.custom.ResourceNotFoundException;
@@ -105,6 +106,19 @@ public class GlobalExceptionHandler {
                 .path(request.getDescription(false))
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // Rate Limiting
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitException(WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .localDateTime(LocalDateTime.now())
+                .status(HttpStatus.TOO_MANY_REQUESTS.value())
+                .error(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())
+                .message("Rate limit exceeded. Please try again later.")
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.TOO_MANY_REQUESTS);
     }
 
 

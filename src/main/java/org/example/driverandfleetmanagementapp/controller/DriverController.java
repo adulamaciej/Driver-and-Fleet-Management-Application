@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.controller;
 
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
+
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class DriverController {
     private final DriverService driverService;
 
 
+    @RateLimiter(name = "api")
     @GetMapping
     @Operation(summary = "Get all drivers", description = "Retrieves paginated list of drivers")
     @ApiResponse(responseCode = "200", description = "List of drivers retrieved successfully")
@@ -40,6 +43,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getAllDrivers(PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/{id}")
     @Operation(summary = "Get driver by ID", description = "Retrieves a specific driver by ID")
     @ApiResponse(responseCode = "200", description = "Driver retrieved successfully")
@@ -50,6 +54,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriverById(id));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/license/{licenseNumber}")
     @Operation(summary = "Get driver by license number", description = "Retrieves a specific driver by license number")
     @ApiResponse(responseCode = "200", description = "Driver retrieved successfully")
@@ -60,6 +65,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriverByLicenseNumber(licenseNumber));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/status/{status}")
     @Operation(summary = "Get drivers by status", description = "Retrieves paginated drivers by their status")
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
@@ -74,6 +80,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriversByStatus(status, PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/search")
     @Operation(summary = "Search drivers by name", description = "Searches for drivers by first name and last name")
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
@@ -85,6 +92,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriversByFirstAndLastName(firstName, lastName));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/license-type/{licenseType}")
     @Operation(summary = "Get drivers by license type", description = "Retrieves paginated drivers by their license type")
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
@@ -99,6 +107,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriversByLicenseType(licenseType,  PageRequest.of(page, size, Sort.by(sortDirection, sortBy))));
     }
 
+    @RateLimiter(name = "api")
     @GetMapping("/vehicle/{vehicleId}")
     @Operation(summary = "Get driver by vehicle ID", description = "Retrieves the driver assigned to a specific vehicle")
     @ApiResponse(responseCode = "200", description = "Driver retrieved successfully")
@@ -108,6 +117,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getDriverByVehicleId(vehicleId));
     }
 
+    @RateLimiter(name = "admin-api")
     @PatchMapping("/{id}/status")
     @Operation(summary = "Update driver status", description = "Updates the status of a driver")
     @ApiResponse(responseCode = "200", description = "Status updated successfully")
@@ -120,6 +130,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.updateDriverStatus(id, status));
     }
 
+    @RateLimiter(name = "admin-api")
     @PostMapping
     @Operation(summary = "Create a new driver", description = "Creates a new driver entry")
     @ApiResponse(responseCode = "201", description = "Driver created successfully")
@@ -130,6 +141,7 @@ public class DriverController {
         return new ResponseEntity<>(driverService.createDriver(driverDto), HttpStatus.CREATED);
     }
 
+    @RateLimiter(name = "admin-api")
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing driver", description = "Updates a driver entry by ID")
     @ApiResponse(responseCode = "200", description = "Driver updated successfully")
@@ -143,6 +155,7 @@ public class DriverController {
         return ResponseEntity.ok(driverService.updateDriver(id, driverDto));
     }
 
+    @RateLimiter(name = "admin-api")
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a driver", description = "Deletes a driver entry by ID")
     @ApiResponse(responseCode = "400", description = "Cannot delete driver with assigned vehicles")

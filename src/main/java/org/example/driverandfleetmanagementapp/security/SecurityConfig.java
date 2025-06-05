@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.security;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,30 +23,47 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
 
+    @Value("${actuator.security.enabled:true}")
+    private boolean actuatorSecurityEnabled;
+
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil, UserDetailsService userDetailsService) throws Exception {
         JwtRequestFilter jwtRequestFilter = new JwtRequestFilter(jwtUtil, userDetailsService);
 
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Ważne dla JWT!
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/api-docs",
-                                "/api-docs/**",
-                                "/webjars/**",
-                                "/api/auth/login"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(
+                            "/",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/api-docs",
+                            "/api-docs/**",
+                            "/webjars/**",
+                            "/api/auth/login"
+                    ).permitAll();
+
+
+                    if (!actuatorSecurityEnabled) {
+                        auth.requestMatchers("/actuator/**").permitAll();
+                    } else {
+                        auth.requestMatchers("/actuator/**").hasRole("ADMIN");
+                    }
+
+
+                    auth.requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")
+                            .requestMatchers("/api/**").hasRole("ADMIN")
+                            .anyRequest().authenticated();
+                })
+
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
 
     @Bean

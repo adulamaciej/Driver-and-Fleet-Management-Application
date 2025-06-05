@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.security;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @RateLimiter(name = "auth-api", fallbackMethod = "loginFallback")
     @PostMapping("/login")
     @Operation(summary = "Login with username and password", description = "Authenticate user and return JWT token")
     @ApiResponse(responseCode = "200", description = "Authentication successful")
@@ -32,4 +34,8 @@ public class AuthController {
 
     }
 
+    public ResponseEntity<JwtResponse> loginFallback(LoginRequest loginRequest, Exception ex) {
+        return ResponseEntity.status(429)
+                .body(new JwtResponse("Rate limit exceeded. Please try again later."));
+    }
 }

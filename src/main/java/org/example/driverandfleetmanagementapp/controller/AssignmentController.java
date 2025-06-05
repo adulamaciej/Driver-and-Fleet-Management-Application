@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.controller;
 
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ public class AssignmentController {
     private final AssignmentService assignmentService;
 
 
+    @RateLimiter(name = "admin-api")
     @PostMapping("/{driverId}/vehicle/{vehicleId}")
     @Operation(summary = "Assign vehicle to driver", description = "Assigns a vehicle to a driver")
     @ApiResponse(responseCode = "200", description = "Vehicle assigned successfully")
@@ -34,6 +36,7 @@ public class AssignmentController {
     }
 
 
+    @RateLimiter(name = "admin-api")
     @DeleteMapping("/{driverId}/vehicle/{vehicleId}")
     @Operation(summary = "Remove vehicle from driver", description = "Removes a vehicle from a driver")
     @ApiResponse(responseCode = "200", description = "Vehicle removed successfully")
