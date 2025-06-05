@@ -26,7 +26,6 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 
 ### Asynchronous Notifications
 - Automatic detection of vehicles with upcoming technical inspections
-- Background processing of notifications without blocking API responses
 - Configurable time range for checking inspection dates
 
 ### API Documentation
@@ -37,25 +36,57 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 
 ## Technical Features
 
-- **Java 23**:  Java version
-- **Maven**: Build and dependency management tool
-- **Spring Boot**: Framework for building Java-based enterprise applications
-- **Spring Data JPA**: Data access using JPA with Hibernate
-- **Spring Security**: Authentication with role-based access control
-- **Caching**: Caffeine cache for improved performance
-- **AOP (Logging)**: SLF4 for logging in Aspect
-- **Validation**: Jakarta Bean Validation for input validation
-- **Mapping**: MapStruct for efficient object mapping
-- **Documentation**: Swagger/OpenAPI for API documentation
-- **Database Migration**: Flyway for database version control with separate migration paths for H2 and PostgreSQL
-- **Testing**: Comprehensive test suite for controllers, services, and repositories
-- **Docker**: Containerization for easy deployment
-- **PostgreSQL**: Production database
-- **H2**: Development and testing database
-- **Lombok**: For boilerplate code reduction
-- **Jenkins**: CI/CD configuration
-- **Monitoring**: Prometheus metrics with Spring Boot Actuator
-- **Asynchronous Processing**: Non-blocking request handling with @Async and CompletableFuture
+### Core Framework
+- **Java 23**: Latest Java version
+- **Spring Boot 3.4.4**: Enterprise application framework
+- **Maven**: Build and dependency management
+
+### Data & Persistence
+- **Spring Data JPA**: Data access with Hibernate ORM
+- **PostgreSQL**: Production database with connection pooling
+- **H2**: In-memory database for development and testing
+- **Flyway**: Database migrations with environment-specific scripts
+
+### Performance & Optimization
+- **Caffeine Caching**: In-memory cache with 15-minute TTL, 500 item capacity
+- **Entity Graphs**: N+1 query problem prevention
+- **Database Indexing**: Optimized queries for frequent lookups
+- **Pagination**: All list endpoints support pagination and sorting
+
+### Security & Authentication
+- **JWT Authentication**: Token-based auth with role-based access control
+- **Spring Security**: Comprehensive security configuration
+- **Password Encryption**: BCrypt hashing for stored passwords
+
+### Code Quality & Mapping
+- **MapStruct**: Compile-time DTO mapping generation
+- **Lombok**: Boilerplate code reduction
+- **Jakarta Validation**: Comprehensive input validation with custom validators
+- **AOP Logging**: Aspect-oriented logging for all service operations
+
+### Testing & Documentation
+- **Comprehensive Tests**: Unit and integration tests with high coverage
+- **OpenAPI 3**: Complete API documentation with Swagger UI
+
+
+### Monitoring & Operations
+- **Spring Actuator**: Health checks, metrics, and operational endpoints
+- **Prometheus Integration**: Custom metrics for business operations
+- **Cache Statistics**: Real-time cache hit/miss ratios and performance metrics
+- **Application Health**: Database connectivity and system status monitoring
+
+### DevOps & Deployment
+- **Docker**: Multi-stage builds with optimized container images
+- **Docker Compose**: Complete stack deployment (app + database + Jenkins)
+- **Jenkins CI/CD**: Automated build, test, and deployment pipeline
+- **Multi-Environment**: Separate configurations for dev/test/prod environments
+
+### Asynchronous Processing
+- **Background Notifications**: Inspection reminder processing runs asynchronously
+- **Thread Pool Management**: Dedicated executor (2-5 threads) for background tasks  
+- **Non-blocking Response**: API returns immediately while notifications process in background
+- **CompletableFuture**: Async notification handling with proper error management
+
 
 
 
@@ -162,6 +193,10 @@ The application supports multiple environment profiles:
 - `POST /api/notifications/inspection-reminders`: Send notifications for vehicles with upcoming technical inspections
 
 
+### Authentication Endpoints
+- `POST /api/auth/login`: Authenticate and receive JWT token
+
+
 ### Assignment Endpoints
 - `POST /api/assignments/{driverId}/vehicle/{vehicleId}`: Assign vehicle to driver
 - `DELETE /api/assignments/{driverId}/vehicle/{vehicleId}`: Remove vehicle from driver
@@ -176,7 +211,7 @@ The application supports multiple environment profiles:
 
 ## Security
 
-The API implements authentication with two predefined users:
+The API implements JWT authentication with two predefined users:
 - `user`: Regular user with read-only access (password: userpassword)
 - `admin`: Administrator with full access (password: adminpassword)
 
