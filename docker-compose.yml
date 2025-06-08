@@ -29,6 +29,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=fleet_user
       - SPRING_DATASOURCE_PASSWORD=fleet_password
       - SPRING_FLYWAY_ENABLED=true
+      - JWT_SECRET=FleetManagementSecureJwtSigningKey2025ProductionEnvironment
+      - JWT_EXPIRATION=3600
     depends_on:
       postgres:
         condition: service_healthy
