@@ -19,7 +19,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import java.util.List;
 
 
 @Service
@@ -84,9 +83,9 @@ public class DriverServiceImpl implements DriverService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "drivers", key = "'name:' + #firstName + ':' + #lastName")
-    public List<DriverDto> getDriversByFirstAndLastName(String firstName, String lastName) {
-        List<Driver> drivers = driverRepository.findByFirstNameAndLastName(firstName, lastName);
-        return drivers.stream().map(driverMapper::toDto).toList();
+    public Page<DriverDto> getDriversByFirstAndLastName(String firstName, String lastName, Pageable pageable) {
+        return driverRepository.findByFirstNameAndLastName(firstName, lastName, pageable)
+                .map(driverMapper::toDto);
     }
 
     @Override

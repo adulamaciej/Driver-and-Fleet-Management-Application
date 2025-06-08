@@ -135,15 +135,19 @@ class DriverServiceImplTest {
 
     @Test
     void getDriversByFirstAndLastName_ShouldReturnDriverDtos() {
-        when(driverRepository.findByFirstNameAndLastName("John","Doe"))
-                .thenReturn(List.of(driver));
+        Page<Driver> driverPage = new PageImpl<>(List.of(driver));
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
 
+        when(driverRepository.findByFirstNameAndLastName(eq("John"), eq("Doe"), eq(pageable)))
+                .thenReturn(driverPage);
         when(driverMapper.toDto(driver)).thenReturn(driverDto);
 
-        List<DriverDto> result = driverService.getDriversByFirstAndLastName("John", "Doe");
+        Page<DriverDto> result = driverService.getDriversByFirstAndLastName("John", "Doe", pageable);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst()).isEqualTo(driverDto);
+        assertThat(result.getContent().getFirst()).isEqualTo(driverDto);
+
+        verify(driverRepository).findByFirstNameAndLastName("John", "Doe", pageable);
+        verify(driverMapper).toDto(driver);
     }
 
     @Test

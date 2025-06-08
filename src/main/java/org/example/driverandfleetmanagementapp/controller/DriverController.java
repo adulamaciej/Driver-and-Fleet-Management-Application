@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 
 
@@ -86,10 +85,17 @@ public class DriverController {
     @ApiResponse(responseCode = "200", description = "Drivers retrieved successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions to access resource")
     @ApiResponse(responseCode = "400", description = "Invalid search parameters")
-    public ResponseEntity<List<DriverDto>> getDriversByFirstAndLastName(
+    public ResponseEntity<Page<DriverDto>> getDriversByFirstAndLastName(
             @RequestParam String firstName,
-            @RequestParam String lastName) {
-        return ResponseEntity.ok(driverService.getDriversByFirstAndLastName(firstName, lastName));
+            @RequestParam String lastName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(driverService.getDriversByFirstAndLastName(
+                firstName, lastName,
+                PageRequest.of(page, size, Sort.by(sortDirection, sortBy))
+        ));
     }
 
     @RateLimiter(name = "api")

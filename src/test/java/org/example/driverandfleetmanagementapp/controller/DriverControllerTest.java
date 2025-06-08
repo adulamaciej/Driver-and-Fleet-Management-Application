@@ -10,10 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -103,13 +100,19 @@ class DriverControllerTest {
 
     @Test
     void searchDriversByName_ShouldReturnDrivers() {
-        when(driverService.getDriversByFirstAndLastName("John", "Doe")).thenReturn(List.of(driverDto));
+        when(driverService.getDriversByFirstAndLastName(eq("John"), eq("Doe"), any(Pageable.class)))
+                .thenReturn(driverPage);
 
-        ResponseEntity<List<DriverDto>> response = driverController.getDriversByFirstAndLastName("John", "Doe");
+        ResponseEntity<Page<DriverDto>> response = driverController.getDriversByFirstAndLastName(
+                "John", "Doe", 0, 10, "id", Sort.Direction.ASC);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).containsExactly(driverDto);
-        verify(driverService).getDriversByFirstAndLastName("John","Doe");
+        assertThat(response.getBody()).isEqualTo(driverPage);
+
+        verify(driverService).getDriversByFirstAndLastName(
+                eq("John"),
+                eq("Doe"),
+                eq(PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id")))
+        );
     }
 
     @Test

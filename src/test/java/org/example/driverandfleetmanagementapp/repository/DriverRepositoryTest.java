@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,16 +70,20 @@ public class DriverRepositoryTest {
         assertThat(drivers.getContent()).contains(testDriver);
     }
 
+
     @Test
     void findByFirstNameAndLastName_ShouldReturnDrivers() {
-        List<Driver> drivers = driverRepository.findByFirstNameAndLastName(
-                testDriver.getFirstName(), testDriver.getLastName());
+        Pageable pageable = PageRequest.of(0, 20);
+
+        Page<Driver> drivers = driverRepository.findByFirstNameAndLastName(
+                testDriver.getFirstName(), testDriver.getLastName(), pageable);
 
         assertThat(drivers).isNotEmpty();
-        assertThat(drivers.getFirst().getFirstName()).isEqualTo(testDriver.getFirstName());
-        assertThat(drivers.getFirst().getLastName()).isEqualTo(testDriver.getLastName());
+        assertThat(drivers.getContent().getFirst().getFirstName()).isEqualTo(testDriver.getFirstName());
+        assertThat(drivers.getContent().getFirst().getLastName()).isEqualTo(testDriver.getLastName());
         assertThat(drivers).contains(testDriver);
     }
+
 
     @Test
     void findByLicenseType_ShouldReturnDrivers() {
