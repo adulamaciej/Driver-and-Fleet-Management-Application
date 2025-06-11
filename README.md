@@ -28,6 +28,10 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - Automatic detection of vehicles with upcoming technical inspections
 - Configurable time range for checking inspection dates
 
+### Audit Management
+-Access to auding endpoints
+
+
 ### API Documentation
 - Open API
 - Swagger UI for API exploration and testing
@@ -75,6 +79,8 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **Prometheus Integration**: Custom metrics for business operations
 - **Cache Statistics**: Real-time cache hit/miss ratios and performance metrics
 - **Application Health**: Database connectivity and system status monitoring
+- **Audit **: auditing for controll and visibility of previous operations
+
 
 ### DevOps & Deployment
 - **Docker**: Multi-stage builds with optimized container images
@@ -208,10 +214,15 @@ The application supports multiple environment profiles:
 - `GET /actuator/prometheus`: Metrics in Prometheus format
 - `GET /actuator/caches`: Cache statistics
 
-  
+
+### Monitoring Endpoints
+- `GET /api/audit`: Returning every change
+- `GET /api/audit/{entityType}/{entityId}`: Returning changes specfic for entity and ID
+- `GET /api/audit/my-operations`: Returning your changes
+
+
 
 ## Security
-
 The API implements JWT authentication with two predefined users:
 - `user`: Regular user with read-only access (password: userpassword)
 - `admin`: Administrator with full access (password: adminpassword)
