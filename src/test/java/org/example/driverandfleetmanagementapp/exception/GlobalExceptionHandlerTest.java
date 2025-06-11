@@ -88,7 +88,7 @@ class GlobalExceptionHandlerTest {
     @ParameterizedTest
     @MethodSource("provideExceptionsForGlobalHandler")
     void handleGlobalExceptions_ShouldReturnInternalServerErrorStatus(Exception exception, boolean includePath) {
-        ResponseEntity<ErrorResponse> response = exceptionHandler.handleGlobalException(exception, webRequest);
+        ResponseEntity<ErrorResponse> response = exceptionHandler.handleGlobalException(webRequest);
 
         verifyErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", includePath);
     }

@@ -2,6 +2,7 @@ package org.example.driverandfleetmanagementapp.service.vehicle;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.driverandfleetmanagementapp.audit.Auditable;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
 import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.exception.custom.ResourceConflictException;
@@ -91,6 +92,7 @@ public class VehicleServiceImpl implements VehicleService {
 
 
     @Override
+    @Auditable(entity = "VEHICLE", action = "CREATE")
     public VehicleDto createVehicle(VehicleDto vehicleDto) {
 
         if (vehicleRepository.findByLicensePlate(vehicleDto.getLicensePlate()).isPresent()) {
@@ -108,6 +110,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Auditable(entity = "VEHICLE", action = "UPDATE")
     @Caching(evict = {
             @CacheEvict(value = "vehicles", key = "'vehicle:' + #id"),
             @CacheEvict(value = "vehicles", key = "'driver:' + #vehicleDto.driver.id")
@@ -128,6 +131,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Auditable(entity = "VEHICLE", action = "DELETE")
     @Caching(evict = {
             @CacheEvict(value = "vehicles", allEntries = true),
             @CacheEvict(value = "drivers", allEntries = true)
@@ -153,6 +157,7 @@ public class VehicleServiceImpl implements VehicleService {
 
 
     @Override
+    @Auditable(entity = "VEHICLE", action = "MILEAGE_UPDATE")
     @CacheEvict(value = "vehicles", key = "'vehicle:' + #id")
     public VehicleDto updateVehicleMileage(Long id, Double mileage) {
 
@@ -174,6 +179,7 @@ public class VehicleServiceImpl implements VehicleService {
 
 
     @Override
+    @Auditable(entity = "VEHICLE", action = "STATUS_CHANGE")
     @CacheEvict(value = "vehicles", key = "'vehicle:' + #id")
     public VehicleDto updateVehicleStatus(Long id, Vehicle.VehicleStatus status) {
 

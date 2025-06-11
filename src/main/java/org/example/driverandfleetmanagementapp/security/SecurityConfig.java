@@ -54,8 +54,8 @@ public class SecurityConfig {
                         auth.requestMatchers("/actuator/**").hasRole("ADMIN");
                     }
 
-
-                    auth.requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")
+                    auth.requestMatchers("/api/audit/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")
                             .requestMatchers("/api/**").hasRole("ADMIN")
                             .anyRequest().authenticated();
                 })

@@ -2,6 +2,7 @@ package org.example.driverandfleetmanagementapp.service.assignment;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.driverandfleetmanagementapp.audit.Auditable;
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
 import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.exception.custom.ResourceConflictException;
@@ -31,6 +32,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
 
     @Override
+    @Auditable(entity = "VEHICLE", action = "DRIVER_ASSIGNMENT")
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
             @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId"),
@@ -78,6 +80,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
 
     @Override
+    @Auditable(entity = "VEHICLE", action = "DRIVER_UNASSIGNMENT")
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
             @CacheEvict(value = "vehicles", key = "'vehicle:' + #vehicleId"),

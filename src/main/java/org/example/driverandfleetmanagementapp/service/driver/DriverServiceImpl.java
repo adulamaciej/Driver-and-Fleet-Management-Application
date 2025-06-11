@@ -3,6 +3,7 @@ package org.example.driverandfleetmanagementapp.service.driver;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.driverandfleetmanagementapp.audit.Auditable;
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
 import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
 import org.example.driverandfleetmanagementapp.exception.custom.ResourceConflictException;
@@ -97,6 +98,7 @@ public class DriverServiceImpl implements DriverService {
 
 
     @Override
+    @Auditable(entity = "DRIVER", action = "CREATE")
     public DriverDto createDriver(DriverDto driverDto) {
         if (driverRepository.findByLicenseNumber(driverDto.getLicenseNumber()).isPresent()) {
             throw new ResourceConflictException("Driver with license number " + driverDto.getLicenseNumber() + " already exists");
@@ -112,6 +114,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Auditable(entity = "DRIVER", action = "UPDATE")
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #id"),
             @CacheEvict(value = "drivers", key = "'licenseType:' + #driverDto.licenseType"),
@@ -134,6 +137,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Auditable(entity = "DRIVER", action = "STATUS_CHANGE")
     @CacheEvict(value = "drivers", key = "'driver:' + #id")
     public DriverDto updateDriverStatus(Long id, Driver.DriverStatus status) {
         Driver driver = driverRepository.findById(id)
@@ -150,6 +154,7 @@ public class DriverServiceImpl implements DriverService {
 
 
     @Override
+    @Auditable(entity = "DRIVER", action = "DELETE")
     @Caching(evict = {
             @CacheEvict(value = "drivers", allEntries = true),
             @CacheEvict(value = "vehicles", allEntries = true)
