@@ -67,6 +67,7 @@ public class Driver {
     }
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 
 }

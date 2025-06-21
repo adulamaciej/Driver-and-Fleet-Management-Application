@@ -69,6 +69,7 @@ public class Vehicle {
     }
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 
 
