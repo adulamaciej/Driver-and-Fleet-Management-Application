@@ -10,8 +10,8 @@ CREATE TABLE drivers (
                          date_of_birth DATE NOT NULL,
                          phone_number VARCHAR(9) NOT NULL,
                          email VARCHAR(50) NOT NULL,
-                         status VARCHAR(30) NOT NULL
-);
+                         status VARCHAR(30) NOT NULL,
+                         deleted BOOLEAN DEFAULT false NOT NULL);
 
 CREATE TABLE vehicles (
                           id BIGINT PRIMARY KEY,
@@ -25,8 +25,8 @@ CREATE TABLE vehicles (
                           mileage DOUBLE NOT NULL,
                           status VARCHAR(20) NOT NULL,
                           driver_id BIGINT,
-                          FOREIGN KEY (driver_id) REFERENCES drivers(id)
-);
+                          deleted BOOLEAN DEFAULT false NOT NULL,
+                          FOREIGN KEY (driver_id) REFERENCES drivers(id));
 
 -- Indexes
 CREATE INDEX idx_driver_status ON drivers(status);

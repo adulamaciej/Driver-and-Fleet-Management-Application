@@ -3,12 +3,16 @@ package org.example.driverandfleetmanagementapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 
 
 @Entity
 @Table(name = "vehicles")
+@SQLDelete(sql = "UPDATE vehicles SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -63,4 +67,9 @@ public class Vehicle {
     public enum VehicleStatus {
         AVAILABLE, IN_USE, IN_SERVICE, OUT_OF_ORDER
     }
+
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+
 }

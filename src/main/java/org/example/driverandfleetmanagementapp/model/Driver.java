@@ -3,6 +3,9 @@ package org.example.driverandfleetmanagementapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -10,6 +13,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "drivers")
+@SQLDelete(sql = "UPDATE drivers SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -60,4 +65,8 @@ public class Driver {
     public enum DriverStatus {
         ACTIVE, ON_LEAVE, SUSPENDED, INACTIVE
     }
+
+    @Column(nullable = false)
+    private boolean deleted = false;
+
 }

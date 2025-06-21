@@ -13,10 +13,12 @@ public interface DriverMapper {
     DriverDto toDto(Driver driver);
 
     @Mapping(target = "vehicles", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     Driver toEntity(DriverDto driverDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "vehicles", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     void updateDriverFromDto(DriverDto driverDTO, @MappingTarget Driver driver);
 
 }

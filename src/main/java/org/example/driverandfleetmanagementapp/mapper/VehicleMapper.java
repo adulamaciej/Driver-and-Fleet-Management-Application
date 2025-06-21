@@ -14,11 +14,13 @@ public interface VehicleMapper {
     VehicleDto toDto(Vehicle vehicle);
 
     @Mapping(target = "driver", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     Vehicle toEntity(VehicleDto vehicleDTO);
 
     Set<VehicleDto> toDtoSet(Set<Vehicle> vehicles);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "driver", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     void updateVehicleFromDto(VehicleDto vehicleDTO, @MappingTarget Vehicle vehicle);
 }

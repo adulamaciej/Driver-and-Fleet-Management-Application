@@ -151,7 +151,6 @@ public class VehicleServiceImpl implements VehicleService {
             throw new BusinessLogicException("Cannot delete vehicle with ID " + id +
                     " as it is currently " + vehicle.getStatus());
         }
-
         vehicleRepository.delete(vehicle);
     }
 

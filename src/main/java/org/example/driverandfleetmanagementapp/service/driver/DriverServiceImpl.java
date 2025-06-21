@@ -173,6 +173,7 @@ public class DriverServiceImpl implements DriverService {
                     ". Driver must be INACTIVE or SUSPENDED before deletion.");
         }
         driverRepository.delete(driver);
+
     }
 
 }
