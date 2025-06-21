@@ -71,6 +71,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 
 ### Testing & Documentation
 - **Comprehensive Tests**: Unit and integration tests with high coverage
+- **Jacoco**: Test coverage analysis and report (html)
 - **OpenAPI 3**: Complete API documentation with Swagger UI
 
 
