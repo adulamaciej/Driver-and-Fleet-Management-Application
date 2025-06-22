@@ -2,7 +2,6 @@ package org.example.driverandfleetmanagementapp.security.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +30,7 @@ public class AppUser {
     @Size(min = 60, max = 60)
     private String passwordHash;
 
-    @NotBlank
-    @Pattern(regexp = "USER|ADMIN")
-    private String role;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 }
