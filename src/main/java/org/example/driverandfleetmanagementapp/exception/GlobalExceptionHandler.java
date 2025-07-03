@@ -3,6 +3,7 @@ package org.example.driverandfleetmanagementapp.exception;
 
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import org.example.driverandfleetmanagementapp.exception.custom.BusinessLogicException;
+import org.example.driverandfleetmanagementapp.exception.custom.CityNotFoundException;
 import org.example.driverandfleetmanagementapp.exception.custom.ResourceConflictException;
 import org.example.driverandfleetmanagementapp.exception.custom.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,18 @@ public class GlobalExceptionHandler {
                 .path(request.getDescription(false))
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCityNotFoundException(CityNotFoundException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .localDateTime(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
 
