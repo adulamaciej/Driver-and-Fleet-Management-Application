@@ -8,7 +8,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 ## Technical Features
 
 ### Core Framework
-- **Java 23**: Latest Java version
+- **Java 23**: Java version
 - **Spring Boot 3.4.4**: Enterprise application framework
 - **Maven**: Build and dependency management
 
