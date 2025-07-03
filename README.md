@@ -1,40 +1,7 @@
 # Driver and Fleet Management System
 
-My Spring Boot application for managing drivers and vehicles in a fleet management system. This RESTful API provides comprehensive functionality for driver and vehicle management, including assignment, status tracking, and search capabilities.
+My Spring Boot application for managing drivers and vehicles in a fleet management system. This RESTful API provides comprehensive functionality for fleet management - most important features/functionalities (for more detailed below) include assignment, status tracking, search capabilities, testing, async, metrics and monitoring, security, logging, audit, profiles, resilience, caching, flyway with h2 and postgres, swagger, docker (+docker compose), jenkins, maven, and consuming external API (OpenApiWeather) for safety recommendation.
 
-
-
-## Features
-
-### Driver Management
-- Create, read, update, and delete driver profiles
-- Manage driver status (ACTIVE, ON_LEAVE, SUSPENDED, INACTIVE)
-- Search drivers by various criteria (name, license type, status)
-- Track license information and validate against vehicle types
-
-### Vehicle Management
-- Create, read, update, and delete vehicle records
-- Manage vehicle status (AVAILABLE, IN_USE, IN_SERVICE, OUT_OF_ORDER)
-- Search vehicles by various criteria (brand, model, type, status)
-- Track mileage and technical inspection dates
-
-### Relationship Management
-- Assign vehicles to drivers
-- Validate license types against vehicle types
-- Prevent invalid assignments (suspended drivers, out-of-order vehicles)
-- Enforce business rules (license compatibility, status restrictions)
-
-### Asynchronous Notifications
-- Automatic detection of vehicles with upcoming technical inspections
-- Configurable time range for checking inspection dates
-
-### Audit Management
--Access to auding endpoints
-
-
-### API Documentation
-- Open API
-- Swagger UI for API exploration and testing
 
 
 
@@ -96,6 +63,10 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - **CompletableFuture**: Async notification handling with proper error management
 
 
+### API consumption
+- **OpenApiWeather**: Consuming external API for detailed weather information for a given city (with exception handling) (WebFlux)
+                      with driver safety recommendations
+
 
 
 ## Profiles
@@ -116,6 +87,8 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 - Configure a new pipeline
 
 
+
+
 ## Project Structure
 
 - Configuration classes for Spring Boot, Security, Cache, and OpenAPI
@@ -132,6 +105,7 @@ My Spring Boot application for managing drivers and vehicles in a fleet manageme
 Resources include:
 - Flyway migration scripts in separate folders for H2 and PostgreSQL
 - Environment-specific application properties (dev, test, prod)
+
 
 Other:
 -Dockerfile
@@ -220,6 +194,10 @@ The application supports multiple environment profiles:
 - `GET /api/audit`: Returning every change
 - `GET /api/audit/{entityType}/{entityId}`: Returning changes specfic for entity and ID
 - `GET /api/audit/my-operations`: Returning your changes
+
+
+### Weather & Driver Recommendation Endpoints
+- `GET /api/weather/{city}`: Returns detailed weather information and driver safety recommendations for the specified city.
 
 
 
