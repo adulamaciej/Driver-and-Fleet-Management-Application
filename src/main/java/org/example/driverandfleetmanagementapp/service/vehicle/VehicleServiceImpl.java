@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.service.vehicle;
 
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.example.driverandfleetmanagementapp.audit.Auditable;
 import org.example.driverandfleetmanagementapp.dto.VehicleDto;
@@ -92,6 +93,7 @@ public class VehicleServiceImpl implements VehicleService {
 
 
     @Override
+    @Timed("fleet.vehicle.creation.time")
     @Auditable(entity = "VEHICLE", action = "CREATE")
     public VehicleDto createVehicle(VehicleDto vehicleDto) {
 
@@ -110,6 +112,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Timed("fleet.vehicle.update.time")
     @Auditable(entity = "VEHICLE", action = "UPDATE")
     @Caching(evict = {
             @CacheEvict(value = "vehicles", key = "'vehicle:' + #id"),
@@ -131,6 +134,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Timed("fleet.vehicle.delete.time")
     @Auditable(entity = "VEHICLE", action = "DELETE")
     @Caching(evict = {
             @CacheEvict(value = "vehicles", allEntries = true),

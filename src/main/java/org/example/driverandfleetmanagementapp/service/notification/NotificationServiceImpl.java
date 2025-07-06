@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.service.notification;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.example.driverandfleetmanagementapp.dto.notification.InspectionReminderResponse;
 import org.example.driverandfleetmanagementapp.dto.notification.VehicleInspectionDto;
@@ -24,6 +25,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
+    @Timed("fleet.notification.inspection.processing.time")
     @Transactional(readOnly = true)
     public InspectionReminderResponse  processInspectionReminders(int days, Pageable pageable) {
 
@@ -60,6 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
+    @Timed("fleet.notification.send.time")
     @Async("taskExecutor")
     @Transactional(readOnly = true) // purpose is to show a 2s simulation
     public CompletableFuture<Void> sendInspectionReminderNotification(Vehicle vehicle) {

@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.weather;
 
+import io.micrometer.core.annotation.Timed;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ public class WeatherRecommendationService {
 
     private final WeatherService weatherService;
 
+
+    @Timed("fleet.weather.recommendation.time")
     public WeatherDto getDetailedWeatherWithRating(String city) {
         WeatherData data = weatherService.getCurrentWeather(city);
 

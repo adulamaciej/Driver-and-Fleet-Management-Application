@@ -1,5 +1,6 @@
 package org.example.driverandfleetmanagementapp.weather;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.example.driverandfleetmanagementapp.exception.custom.CityNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ public class WeatherService {
     private String apiUrl;
 
 
+    @Timed("fleet.weather.api.call.time")
     public WeatherData getCurrentWeather(String city) {
         try {
             return webClient.get()

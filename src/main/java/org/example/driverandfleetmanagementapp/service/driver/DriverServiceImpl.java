@@ -2,6 +2,7 @@ package org.example.driverandfleetmanagementapp.service.driver;
 
 
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.example.driverandfleetmanagementapp.audit.Auditable;
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
@@ -98,6 +99,7 @@ public class DriverServiceImpl implements DriverService {
 
 
     @Override
+    @Timed("fleet.driver.creation.time")
     @Auditable(entity = "DRIVER", action = "CREATE")
     public DriverDto createDriver(DriverDto driverDto) {
         if (driverRepository.findByLicenseNumber(driverDto.getLicenseNumber()).isPresent()) {
@@ -114,6 +116,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Timed("fleet.driver.update.time")
     @Auditable(entity = "DRIVER", action = "UPDATE")
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #id"),
@@ -154,6 +157,7 @@ public class DriverServiceImpl implements DriverService {
 
 
     @Override
+    @Timed("fleet.driver.delete.time")
     @Auditable(entity = "DRIVER", action = "DELETE")
     @Caching(evict = {
             @CacheEvict(value = "drivers", allEntries = true),

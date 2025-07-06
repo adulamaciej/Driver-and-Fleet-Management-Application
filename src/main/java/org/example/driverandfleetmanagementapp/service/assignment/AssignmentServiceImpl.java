@@ -1,6 +1,7 @@
 package org.example.driverandfleetmanagementapp.service.assignment;
 
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.example.driverandfleetmanagementapp.audit.Auditable;
 import org.example.driverandfleetmanagementapp.dto.DriverDto;
@@ -32,6 +33,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
 
     @Override
+    @Timed("fleet.assignment.create.time")
     @Auditable(entity = "VEHICLE", action = "DRIVER_ASSIGNMENT")
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
@@ -80,6 +82,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
 
     @Override
+    @Timed("fleet.assignment.remove.time")
     @Auditable(entity = "VEHICLE", action = "DRIVER_UNASSIGNMENT")
     @Caching(evict = {
             @CacheEvict(value = "drivers", key = "'driver:' + #driverId"),
