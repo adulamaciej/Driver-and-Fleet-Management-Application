@@ -49,11 +49,6 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle with ID " + vehicleId + " not found"));
 
 
-        if (vehicle.getStatus() != Vehicle.VehicleStatus.AVAILABLE) {
-            throw new BusinessLogicException("Cannot assign vehicle with status " + vehicle.getStatus() + " to a driver. " +
-                    "Vehicle must have AVAILABLE status");
-        }
-
         if (driver.getStatus() != Driver.DriverStatus.ACTIVE) {
             throw new BusinessLogicException("Cannot assign vehicle to driver with status " + driver.getStatus() +
                     ". Driver must have ACTIVE status.");
@@ -106,6 +101,12 @@ public class AssignmentServiceImpl implements AssignmentService {
         driver.getVehicles().remove(vehicle);
         vehicle.setDriver(null);
         vehicle.setStatus(Vehicle.VehicleStatus.AVAILABLE);
+
+        if (driver.getVehicles().isEmpty()) {
+            driver.setStatus(Driver.DriverStatus.INACTIVE);
+        }
+
+
         return driverMapper.toDto(driver);
     }
 

@@ -145,12 +145,6 @@ public class DriverServiceImpl implements DriverService {
     public DriverDto updateDriverStatus(Long id, Driver.DriverStatus status) {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver with ID " + id + " not found"));
-
-        if ((status == Driver.DriverStatus.SUSPENDED || status == Driver.DriverStatus.INACTIVE)
-                && !driver.getVehicles().isEmpty()) {
-            throw new BusinessLogicException("Cannot change driver status to " + status
-                    + " when driver has assigned vehicles. Please remove vehicle assignments first.");
-        }
         driver.setStatus(status);
         return driverMapper.toDto(driver);
     }
